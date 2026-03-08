@@ -6,7 +6,48 @@ An agent skill that automatically rewrites your prompts through the lens of the 
 
 The same question produces dramatically different answers depending on how it's framed. This skill exploits that by identifying the world's leading expert for your topic and rewriting your prompt through their thinking — automatically, before the LLM responds.
 
-**You ask a question. It clarifies if needed (via quick multiple-choice), picks the best expert, rewrites your prompt, and delivers a sharp, concise answer with a clear next step.**
+**You ask a question. It clarifies if needed (via quick multiple-choice), maps the problem structure, picks the best expert, extracts their mental models and success metrics, rewrites your prompt in expert-level language, and delivers a sharp, plain-English answer with a clear next step.**
+
+## What's New
+
+### Logic Mapping (Problem Topology)
+
+Before picking an expert, the skill now classifies your problem's structural shape — which determines the reasoning framework applied:
+
+| Topology | When it applies | Framework |
+|----------|----------------|-----------|
+| **Bottleneck** | One constraint limits the whole system | Theory of Constraints |
+| **Resource** | Scarce resources, competing priorities | Opportunity Cost / Capital Allocation |
+| **Direction** | Don't know which path to take | First Principles / Inversion |
+| **Execution** | Know what, struggling with how | Process Design / Decomposition |
+| **Tradeoff** | Competing goods — more X means less Y | Decision Matrix / Weighted Criteria |
+| **Diagnosis** | Something is wrong, root cause unknown | Root Cause Analysis / 5 Whys |
+
+The identified structure appears in the output header so you can see how your problem was classified.
+
+### Active Extraction (Mental Models + KPIs)
+
+When selecting an expert, the skill now extracts:
+- **2–3 Mental Models** specific to the request (e.g., Pareto Principle, Second-order effects)
+- **2–3 North Star Metrics** that define success in the domain (e.g., CAC/LTV ratio, Time-to-Value, adherence rate)
+
+These sharpen the optimized prompt and are visible in the output header.
+
+### Bilingual Execution (Jargon Buffer)
+
+The skill now operates in two language registers:
+- **Optimized prompt** — High-density expert terminology to maximize the LLM's reasoning quality
+- **Final answer** — Plain English, scannable, benefit-oriented. No unnecessary jargon.
+
+The technical language drives better reasoning internally; the clear language is what you actually read.
+
+### Follow-up Handling
+
+Follow-up questions ("tell me more about point 3") no longer re-run the full pipeline. The skill stays in the same expert's framework and goes deeper — no repeated headers, no redundant optimization.
+
+### Non-Business Domain Support
+
+Every domain has an expert worth naming. The skill now handles personal, creative, health, and niche questions — not just business strategy. Examples include Anders Ericsson for learning, Marie Kondo for organization, Matthew Walker for sleep.
 
 ## Test Results
 
@@ -82,11 +123,13 @@ The skill knows when to stay out of the way. Simple commands, file operations, a
 ## How It Works
 
 1. **You send a prompt** — any substantive question, decision, or analysis request
-2. **If ambiguous, it asks clarifying questions first** — as multiple-choice options (2–5 choices each), always with an "Other — tell me more" escape hatch. Fast to answer, no typing required.
-3. **The skill identifies the best expert** — a specific named individual whose frameworks fit your problem
-4. **It rewrites your prompt** through that expert's mental models, vocabulary, and reasoning structure
-5. **It emits structured JSON** with the expert profile, optimized prompt, and display metadata
-6. **It executes the optimized prompt** — concise answer (3–5 key points), always ending with a concrete next step
+2. **Triage** — the skill classifies your prompt as Skip (trivial), Clarify (ambiguous), or Optimize (clear and substantive)
+3. **If ambiguous, it asks clarifying questions first** — as multiple-choice options (2–5 choices each), always with an "Other — tell me more" escape hatch
+4. **Logic Mapping** — classifies your problem topology (Bottleneck, Resource, Direction, Execution, Tradeoff, or Diagnosis) to determine the reasoning framework
+5. **Expert selection + Active Extraction** — identifies a specific named individual, extracts their mental models and relevant success metrics
+6. **Prompt rewrite** — rewrites your question using the expert's frameworks, vocabulary, and reasoning structure in high-density technical language
+7. **Plain-English execution** — executes the optimized prompt and delivers the answer in clear, scannable language (3–5 key points), always ending with a concrete next step
+8. **Follow-ups stay in context** — asking "tell me more about point 3" goes deeper without re-running the pipeline
 
 For trivial tasks (file reads, git commands, simple code edits), the skill emits `status: "skipped"` and proceeds directly.
 
@@ -118,22 +161,40 @@ You reply with letters (e.g., `a, b, c`) and the skill optimizes from there. If 
 
 ## Output Format
 
-The skill outputs a structured JSON block before executing, enabling downstream automation to parse results reliably:
+The skill renders a structured header followed by the answer:
+
+```
+**Expert**: Anders Ericsson — pioneered the science of deliberate practice
+**Logic Structure**: Process Design / Execution
+**Key Metrics**: Practice quality ratio, Time-to-first-milestone, Weekly retention rate
+
+**Optimized prompt**:
+> [High-density technical prompt the LLM reasons over]
+
+---
+[Plain-English answer you actually read]
+
+**Next step:** [One concrete action]
+```
+
+Optional JSON metadata is available for programmatic consumers:
 
 ```json
 {
   "status": "optimized",
   "expert_profile": {
-    "name": "Blair Enns",
-    "rationale": "Author of Pricing Creativity — reframes pricing as a positioning problem",
-    "frameworks": ["Practitioner's dilemma", "Value-based pricing", "Price-sensitive client segmentation"]
+    "name": "Anders Ericsson",
+    "rationale": "Pioneered the science of deliberate practice and expert performance",
+    "frameworks": ["Deliberate practice", "Skill decomposition", "Feedback loop design"],
+    "mental_models": ["10,000 hours (refined)", "Desirable difficulty", "Spacing effect"],
+    "industry_kpis": ["Practice quality ratio", "Time-to-first-milestone", "Weekly retention rate"]
   },
-  "optimized_prompt": "...",
-  "ui_render": "**Expert**: Blair Enns — ...\n\n**Optimized prompt**:\n> ...\n\n---",
-  "control_flag": {
-    "immediate_execute": true,
-    "user_confirm_required": false
-  }
+  "logic_structure": {
+    "type": "Execution",
+    "reasoning_framework": "Process Design / Decomposition",
+    "secondary_type": null
+  },
+  "optimized_prompt": "..."
 }
 ```
 
@@ -141,8 +202,6 @@ The skill outputs a structured JSON block before executing, enabling downstream 
 - `optimized` — Expert selected, prompt rewritten, answer delivered
 - `skipped` — Trivial task, proceeded with original prompt
 - `error` — Optimization failed, fell back to original prompt
-
-The `ui_render` field contains the human-readable Markdown displayed in the terminal. The `optimized_prompt` field is what gets executed.
 
 ## Install
 
