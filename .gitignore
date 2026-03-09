@@ -33,3 +33,5 @@ evals/
 
 # Unrelated project files
 my-video-tktk/
+/claude-code-ntfy
+*.stackdump
