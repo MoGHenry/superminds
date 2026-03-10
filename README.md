@@ -51,46 +51,46 @@ Tightens wording, fixes grammar, improves parallel structure — preserves your 
 Every prompt hits a 4-lane triage, then routes to the appropriate pipeline:
 
 ```
-Your question
-    │
-    ▼
-┌─────────────────────────────────┐
-│  TRIAGE                         │
-│  Which lane fits this prompt?   │
-├─────────┬─────────┬──────┬──────┤
-│  Skip   │ Polish  │Clarify│Optimize
-│         │         │      │      │
-│ Proceed │ Quick   │ Ask  │  ▼   │
-│ as-is   │ wording │ MCQs │┌─────┴───────────────┐
-│         │ pass    │ then ││ LOGIC MAPPING       │
-│         │         │  ▼   ││ Classify problem:   │
-│         │         │Optimize│ Bottleneck, Resource│
-│         │         │      ││ Direction, Execution│
-│         │         │      ││ Tradeoff, Diagnosis │
-│         │         │      │└─────┬───────────────┘
-│         │         │      │      │
-│         │         │      │      ▼
-│         │         │      │┌─────────────────────┐
-│         │         │      ││ EXPERT SELECTION     │
-│         │         │      ││ Named individual,    │
-│         │         │      ││ mental models, KPIs  │
-│         │         │      │└─────┬───────────────┘
-│         │         │      │      │
-│         │         │      │      ▼
-│         │         │      │┌─────────────────────┐
-│         │         │      ││ PROMPT REWRITE       │
-│         │         │      ││ Expert's frameworks, │
-│         │         │      ││ vocabulary, blind    │
-│         │         │      ││ spots                │
-│         │         │      │└─────┬───────────────┘
-│         │         │      │      │
-│         │         │      │      ▼
-│         │         │      │┌─────────────────────┐
-│         │         │      ││ PLAIN-ENGLISH ANSWER │
-│         │         │      ││ 3-5 points, concrete │
-│         │         │      ││ "Next step" at end   │
-│         │         │      │└─────────────────────┘
-└─────────┴─────────┴──────┴──────┘
+                    Your question
+                           │
+                           ▼
+┌───────────────────────────────────────────────────────┐
+│                        TRIAGE                         │
+│               Which lane fits this prompt?            │
+├─────────┬─────────┬──────────┬────────────────────────┤
+│  Skip   │ Polish  │ Clarify  │       Optimize         │
+│         │         │          │           │            │
+│ Proceed │ Quick   │   Ask    │           ▼            │
+│ as-is   │ wording │   MCQs   │┌─────────────────────┐ │
+│         │ pass    │   then   ││ LOGIC MAPPING       │ │
+│         │         │    ▼     ││ Classify problem:   │ │
+│         │         │ Optimize ││Bottleneck, Resource │ │
+│         │         │          ││ Direction, Execution│ │
+│         │         │          ││ Tradeoff, Diagnosis │ │
+│         │         │          │└──────────┬──────────┘ │
+│         │         │          │           │            │
+│         │         │          │           ▼            │
+│         │         │          │┌─────────────────────┐ │
+│         │         │          ││ EXPERT SELECTION    │ │
+│         │         │          ││ Named individual,   │ │
+│         │         │          ││ mental models, KPIs │ │
+│         │         │          │└──────────┬──────────┘ │
+│         │         │          │           │            │
+│         │         │          │           ▼            │
+│         │         │          │┌──────────────────────┐│
+│         │         │          ││ PROMPT REWRITE       ││
+│         │         │          ││ Expert's frameworks, ││
+│         │         │          ││ vocabulary, blind    ││
+│         │         │          ││ spots                ││
+│         │         │          │└──────────┬───────────┘│
+│         │         │          │           │            │
+│         │         │          │           ▼            │
+│         │         │          │┌──────────────────────┐│
+│         │         │          ││ PLAIN-ENGLISH ANSWER ││
+│         │         │          ││ 3-5 points, concrete ││
+│         │         │          ││ "Next step" at end   ││
+│         │         │          │└──────────────────────┘│
+└─────────┴─────────┴──────────┴────────────────────────┘
 ```
 
 **Follow-ups skip the pipeline.** Asking "tell me more about point 3" goes deeper in the same expert's framework without re-running everything.
@@ -166,7 +166,7 @@ If a domain has someone who wrote the definitive book or research, the skill fin
 npx skills add https://github.com/MoGHenry/best-minds-optimizer --skill best-minds-optimizer
 ```
 
-Or browse and install from [skills.sh](https://skills.sh).
+Or browse and install from [skills.sh](https://skills.sh) by searching `best-minds-optimizer`
 
 ## License
 
