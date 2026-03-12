@@ -1,6 +1,6 @@
 # Best Minds — 提示词优化器
 
-[README - English](https://github.com/MoGHenry/best-minds-optimizer/blob/main/README.md)
+[README - English](https://github.com/MoGHenry/best-minds-optimizer/blob/main/README-best-minds-optimizer-CN.md)
 
 你向 LLM 提的每个问题，得到的都是泛泛而谈的回答。同样的问题，如果用查理·芒格的思维模型或 Blair Enns 的定价框架重新组织，得到的回答会截然不同——而且好得多。
 
