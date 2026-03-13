@@ -2,7 +2,7 @@
 
 # Best Minds — Prompt Optimizer
 
-English | [中文](https://github.com/MoGHenry/superminds/blob/main/README-best-minds-optimizer.md)
+English | [中文](https://github.com/MoGHenry/superminds/blob/main/README-best-minds-optimizer.md) | [skills.sh](https://skills.sh/moghenry/superminds/best-minds-optimizer)
 
 </div>
 

@@ -2,7 +2,7 @@
 
 # Superminds
 
-[English](https://github.com/MoGHenry/superminds/blob/main/README.md) | 中文
+[English](https://github.com/MoGHenry/superminds/blob/main/README.md) | 中文 | [skills.sh](https://skills.sh/moghenry/superminds)
 
 </div>
 

@@ -2,7 +2,7 @@
 
 # 4D Mind Analyst
 
-English | [中文](https://github.com/MoGHenry/superminds/blob/main/README-4d-mind-analyst-CN.md)
+English | [中文](https://github.com/MoGHenry/superminds/blob/main/README-4d-mind-analyst-CN.md) | [skills.sh](https://skills.sh/moghenry/superminds/4d-mind-analyst)
 
 </div>
 

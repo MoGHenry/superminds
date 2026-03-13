@@ -2,7 +2,7 @@
 
 # Best Minds — 提示词优化器
 
-[English](https://github.com/MoGHenry/superminds/blob/main/README-best-minds-optimizer-CN.md) | 中文
+[English](https://github.com/MoGHenry/superminds/blob/main/README-best-minds-optimizer-CN.md) | 中文 | [skills.sh](https://skills.sh/moghenry/superminds/best-minds-optimizer)
 
 </div>
 
