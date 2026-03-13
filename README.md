@@ -2,7 +2,7 @@
 
 # Superminds
 
-English | [中文](https://github.com/MoGHenry/superminds/blob/main/README-CN.md) | [skills.sh](https://skills.sh/moghenry/superminds)
+English | [中文](https://github.com/MoGHenry/superminds/blob/main/README-CN.md) | [skills.sh/superminds](https://skills.sh/moghenry/superminds)
 
 </div>
 
@@ -14,7 +14,9 @@ Superminds is a set of agent skills that make your AI agent *think* before it an
 
 Superminds starts working the moment you ask a substantive question. The skills trigger automatically based on your input — you don't need to do anything special.
 
-**Best Minds Optimizer** intercepts every prompt and runs a 4-lane triage:
+**Best Minds Optimizer** | [skills.sh/superminds/best-minds-optmizer](https://skills.sh/moghenry/superminds/best-minds-optimizer)
+
+intercepts every prompt and runs a 4-lane triage:
 
 ```
 Input → Triage (Skip | Polish | Clarify | Optimize) → Expert-Framed Answer
@@ -25,7 +27,9 @@ Input → Triage (Skip | Polish | Clarify | Optimize) → Expert-Framed Answer
 - **Clarify** — Ambiguous questions get targeted multiple-choice questions first.
 - **Optimize** — Substantive questions get the full pipeline: Logic Mapping → Expert Selection → Prompt Rewrite → Plain-English Answer.
 
-**4D Mind Analyst** activates when you need multi-dimensional analysis:
+**4D Mind Analyst**  | [skills.sh/superminds/4d-mind-analyst](https://skills.sh/moghenry/superminds/4d-mind-analyst)
+
+activates when you need multi-dimensional analysis:
 
 ```
 Input → Perspective Menu → Parallel Agents → Synthesis → Tiered Output
@@ -43,6 +47,8 @@ npx skills add https://github.com/MoGHenry/superminds --skill 4d-mind-analyst
 ```
 
 Or install manually by copying the skill directories into your agent's skills folder:
+
+[Github/superminds](https://github.com/MoGHenry/superminds)
 
 | Agent | Project Path | Global Path |
 |-------|-------------|-------------|
@@ -107,4 +113,4 @@ GPL-3.0 License — see LICENSE file for details.
 ## Support
 
 - **Issues**: https://github.com/MoGHenry/superminds/issues
-- **Skills Directory**: [skills.sh](https://skills.sh/moghenry/superminds)
+- **Skills Directory**: [skills.sh/superminds](https://skills.sh/moghenry/superminds)
