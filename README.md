@@ -10,33 +10,6 @@ Every question you ask an LLM gets a generic answer. The same question, rewritte
 
 Superminds is a set of agent skills that make your AI agent *think* before it answers. One skill rewrites your prompt through the world's best domain expert. Another analyzes your topic from four parallel perspectives — user-centric, product, cultural, and educational — then synthesizes them into a unified analysis. A third manages long-running agent work across multiple context windows using a feature list, session init protocol, and incremental commit discipline. Together, they turn any AI agent — coding assistant, research tool, or general-purpose chatbot — into a strategic thinking partner.
 
-## How It Works
-
-Superminds starts working the moment you ask a substantive question. The skills trigger automatically based on your input — you don't need to do anything special.
-
-**Best Minds Optimizer** | [skills.sh/superminds/best-minds-optmizer](https://skills.sh/moghenry/superminds/best-minds-optimizer)
-
-intercepts every prompt and runs a 4-lane triage:
-
-```
-Input → Triage (Skip | Polish | Clarify | Optimize) → Expert-Framed Answer
-```
-
-- **Skip** — Mechanical tasks pass through untouched. No friction.
-- **Polish** — User-authored text gets a quick wording pass. Voice preserved.
-- **Clarify** — Ambiguous questions get targeted multiple-choice questions first.
-- **Optimize** — Substantive questions get the full pipeline: Logic Mapping → Expert Selection → 4-D Methodology (Deconstruct → Diagnose → Develop → Deliver) → Plain-English Answer.
-
-**4D Mind Analyst**  | [skills.sh/superminds/4d-mind-analyst](https://skills.sh/moghenry/superminds/4d-mind-analyst)
-
-activates when you need multi-dimensional analysis:
-
-```
-Input → Perspective Menu → Parallel Agents → Synthesis → Tiered Output
-```
-
-Four independent agents analyze simultaneously, then a synthesis agent merges their insights — surfacing convergences, tensions, and blind spots that no single perspective could find alone.
-
 ## Installation
 
 ### Claude Code
@@ -71,6 +44,33 @@ Start a new session and ask a substantive question (e.g., "How should I price my
 
 **Agent Workflow**
 - **[feature-list-mind](README-feature-list-mind.md)** — Session continuity protocol for long-running agent work. Manages a JSON feature list, session init sequence, incremental commit discipline, and failure guards to keep agents productive across multiple context windows. Based on Anthropic's [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
+
+## How It Works
+
+Superminds starts working the moment you ask a substantive question. The skills trigger automatically based on your input — you don't need to do anything special.
+
+**Best Minds Optimizer** | [skills.sh/superminds/best-minds-optmizer](https://skills.sh/moghenry/superminds/best-minds-optimizer)
+
+intercepts every prompt and runs a 4-lane triage:
+
+```
+Input → Triage (Skip | Polish | Clarify | Optimize) → Expert-Framed Answer
+```
+
+- **Skip** — Mechanical tasks pass through untouched. No friction.
+- **Polish** — User-authored text gets a quick wording pass. Voice preserved.
+- **Clarify** — Ambiguous questions get targeted multiple-choice questions first.
+- **Optimize** — Substantive questions get the full pipeline: Logic Mapping → Expert Selection → 4-D Methodology (Deconstruct → Diagnose → Develop → Deliver) → Plain-English Answer.
+
+**4D Mind Analyst**  | [skills.sh/superminds/4d-mind-analyst](https://skills.sh/moghenry/superminds/4d-mind-analyst)
+
+activates when you need multi-dimensional analysis:
+
+```
+Input → Perspective Menu → Parallel Agents → Synthesis → Tiered Output
+```
+
+Four independent agents analyze simultaneously, then a synthesis agent merges their insights — surfacing convergences, tensions, and blind spots that no single perspective could find alone.
 
 ### How They Work Together
 

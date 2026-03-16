@@ -10,33 +10,6 @@
 
 Superminds 是一组智能体技能，让你的 AI 智能体在回答之前先*思考*。一个技能通过该领域最顶尖专家的视角重写你的提示词，另一个从四个并行视角——用户中心、产品、文化和教育——分析你的主题，然后综合为统一的分析报告。两者协作，将任何 AI 智能体——无论是编程助手、研究工具还是通用聊天机器人——升级为战略思维伙伴。
 
-## 工作原理
-
-当你提出实质性问题的那一刻，Superminds 就开始工作。技能会根据你的输入自动触发——你不需要做任何额外操作。
-
-### **Best Minds Optimizer（最强大脑优化器）**  | [skills.sh/superminds/best-minds-optmizer](https://skills.sh/moghenry/superminds/best-minds-optimizer)
-
-拦截每个提示词，执行四通道分流：
-
-```
-输入 → 分流（跳过 | 润色 | 澄清 | 优化）→ 专家视角回答
-```
-
-- **跳过** — 机械性任务直接通过，零干扰。
-- **润色** — 用户撰写的文本获得快速措辞优化，保留原有风格。
-- **澄清** — 模糊问题先通过针对性的选择题收集上下文。
-- **优化** — 实质性问题走完整流程：逻辑映射 → 专家选择 → 提示词重写 → 通俗易懂的回答。
-
-### **4D Mind Analyst（4D 思维分析师）** | [skills.sh/superminds/4d-mind-analyst](https://skills.sh/moghenry/superminds/4d-mind-analyst)
-
-在你需要多维度分析时激活：
-
-```
-输入 → 视角选单 → 并行智能体 → 综合分析 → 分层输出
-```
-
-四个独立智能体同时进行分析，然后由综合智能体整合洞察——发现共识、张力和盲区，这些是任何单一视角都无法独自看到的。
-
 ## 安装
 
 ### Claude Code
@@ -78,6 +51,33 @@ npx skills add https://github.com/MoGHenry/superminds --skill 4d-mind-analyst
 | "分析远程办公的反弹潮" | 4D Mind Analyst | 四个并行智能体分别从用户、产品、文化和教育角度进行分析 |
 | "初级开发者岗位消失的深层原因是什么？" | 两者同时 | Optimizer 重构问题；4D Analyst 运行完整的多视角分析 |
 | "读取这个文件" / "提交代码" | 都不触发（跳过） | 直接通过——机械性任务零干扰 |
+
+## 工作原理
+
+当你提出实质性问题的那一刻，Superminds 就开始工作。技能会根据你的输入自动触发——你不需要做任何额外操作。
+
+### **Best Minds Optimizer（最强大脑优化器）**  | [skills.sh/superminds/best-minds-optmizer](https://skills.sh/moghenry/superminds/best-minds-optimizer)
+
+拦截每个提示词，执行四通道分流：
+
+```
+输入 → 分流（跳过 | 润色 | 澄清 | 优化）→ 专家视角回答
+```
+
+- **跳过** — 机械性任务直接通过，零干扰。
+- **润色** — 用户撰写的文本获得快速措辞优化，保留原有风格。
+- **澄清** — 模糊问题先通过针对性的选择题收集上下文。
+- **优化** — 实质性问题走完整流程：逻辑映射 → 专家选择 → 提示词重写 → 通俗易懂的回答。
+
+### **4D Mind Analyst（4D 思维分析师）** | [skills.sh/superminds/4d-mind-analyst](https://skills.sh/moghenry/superminds/4d-mind-analyst)
+
+在你需要多维度分析时激活：
+
+```
+输入 → 视角选单 → 并行智能体 → 综合分析 → 分层输出
+```
+
+四个独立智能体同时进行分析，然后由综合智能体整合洞察——发现共识、张力和盲区，这些是任何单一视角都无法独自看到的。
 
 ## 核心模式
 
