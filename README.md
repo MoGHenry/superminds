@@ -8,7 +8,7 @@ English | [中文](https://github.com/MoGHenry/superminds/blob/main/README-CN.md
 
 Every question you ask an LLM gets a generic answer. The same question, rewritten through Charlie Munger's mental models or analyzed from four independent perspectives simultaneously, gets a fundamentally different — and better — one.
 
-Superminds is a set of agent skills that make your AI agent *think* before it answers. One skill rewrites your prompt through the world's best domain expert. The other analyzes your topic from four parallel perspectives — user-centric, product, cultural, and educational — then synthesizes them into a unified analysis. Together, they turn any AI agent — coding assistant, research tool, or general-purpose chatbot — into a strategic thinking partner.
+Superminds is a set of agent skills that make your AI agent *think* before it answers. One skill rewrites your prompt through the world's best domain expert. Another analyzes your topic from four parallel perspectives — user-centric, product, cultural, and educational — then synthesizes them into a unified analysis. A third manages long-running agent work across multiple context windows using a feature list, session init protocol, and incremental commit discipline. Together, they turn any AI agent — coding assistant, research tool, or general-purpose chatbot — into a strategic thinking partner.
 
 ## How It Works
 
@@ -44,6 +44,7 @@ Four independent agents analyze simultaneously, then a synthesis agent merges th
 ```bash
 npx skills add https://github.com/MoGHenry/superminds --skill best-minds-optimizer
 npx skills add https://github.com/MoGHenry/superminds --skill 4d-mind-analyst
+npx skills add https://github.com/MoGHenry/superminds --skill feature-list-mind
 ```
 
 Or install manually by copying the skill directories into your agent's skills folder:
@@ -68,15 +69,20 @@ Start a new session and ask a substantive question (e.g., "How should I price my
 - **[best-minds-optimizer](README-best-minds-optimizer.md)** — Prompt optimizer that identifies the world's top domain expert for your question, rewrites your prompt through their frameworks using a structured 4-D Methodology (Deconstruct → Diagnose → Develop → Deliver), and delivers a plain-English answer with a concrete next step. Handles four lanes: Skip, Polish, Clarify, and Optimize.
 - **[4d-mind-analyst](README-4d-mind-analyst.md)** — Multi-perspective analysis engine that dispatches four parallel agents — User-Centric, Product, Topic Selection, and Curriculum thinking — then synthesizes their independent analyses into a unified tiered output.
 
+**Agent Workflow**
+- **[feature-list-mind](README-feature-list-mind.md)** — Session continuity protocol for long-running agent work. Manages a JSON feature list, session init sequence, incremental commit discipline, and failure guards to keep agents productive across multiple context windows. Based on Anthropic's [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
+
 ### How They Work Together
 
-The two skills are complementary:
+The skills are complementary:
 
 | Scenario | Which skill fires | What happens |
 |----------|------------------|-------------|
 | "How should I price my freelance work?" | Best Minds Optimizer | Selects Blair Enns, rewrites through pricing frameworks, delivers expert-framed answer |
 | "Analyze the remote work backlash" | 4D Mind Analyst | Four parallel agents examine from user, product, cultural, and educational angles |
 | "What's really going on with junior dev roles disappearing?" | Both | Optimizer reframes the question; 4D Analyst runs full multi-perspective analysis |
+| "Build me a full-stack chat app" | Feature List Mind | Expands into 50+ granular features, tracks progress across sessions |
+| "Pick up where we left off" | Feature List Mind | Reads features.json, selects next priority feature, announces intent |
 | "Read this file" / "commit this" | Neither (Skip) | Passes through untouched — no friction on mechanical tasks |
 
 ## The Core Patterns
