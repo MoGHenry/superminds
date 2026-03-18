@@ -80,6 +80,17 @@ The `blocks` field is the inverse of `depends_on` — it lists which features ar
 
 Example: If F001 has `"blocks": ["F002", "F003", "F004"]` and F006 has `"blocks": []`, always pick F001 first — it unblocks three features.
 
+### Bidirectional Consistency Rule
+
+`depends_on` and `blocks` must always be kept in sync as logical inverses. **Every edge in the dependency graph must appear in both directions.** Specifically:
+
+- If feature B lists A in its `depends_on`, then feature A **must** list B in its `blocks`.
+- If feature A lists B in its `blocks`, then feature B **must** list A in its `depends_on`.
+
+**When adding or modifying a dependency, always update both sides in the same operation.** Never write one side and assume the other will be filled in later.
+
+Consistency check — after generating or modifying the feature list, verify: for every feature X, for every ID in `X.depends_on`, that ID's `blocks` array contains X's ID. And vice versa: for every ID in `X.blocks`, that ID's `depends_on` array contains X's ID. If any mismatch is found, fix it immediately.
+
 ## Categories
 
 | Category | When to use | Examples |

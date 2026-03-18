@@ -26,7 +26,10 @@ Transform the project description into a `features.json` file. The expansion fol
 5. **Write 3–7 concrete verification steps per feature** — These are the test script the agent will run after implementation
 6. **Categorize each feature** — `functional`, `ui`, `integration`, `infrastructure`, or `polish`
 7. **Assign priority** — `critical` (blocks other work), `high` (core), `medium` (important), `low` (nice-to-have)
-8. **Map dependencies in both directions** — Fill both `depends_on` (what must pass first) and `blocks` (what this unblocks). This bidirectional mapping makes feature selection smarter.
+8. **Map dependencies bidirectionally** — For every dependency edge, update both sides:
+   - When feature B depends on feature A, add A's ID to B's `depends_on` **and** add B's ID to A's `blocks`.
+   - When feature A unblocks feature B, add B's ID to A's `blocks` **and** add A's ID to B's `depends_on`.
+   - After mapping all dependencies, run a consistency check: for every feature, verify that every ID in its `depends_on` has a corresponding entry in that ID's `blocks`, and vice versa. Fix any mismatches before proceeding.
 9. **Order by phase, then by dependency** — Foundation features first, then MVP, then Core. Within each phase, features that others depend on come first.
 
 ### Expansion Target
