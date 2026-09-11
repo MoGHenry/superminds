@@ -26,6 +26,7 @@ yarn.lock
 
 # Local dev tools
 /.claude
+/.agents
 
 # Test artifacts
 best-minds-workspace/
