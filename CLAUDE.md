@@ -40,3 +40,13 @@ Every skill follows the same pattern:
 ## README Files
 
 Each first-party skill has a dedicated README at the repo root (`README-best-minds-optimizer.md`, `README-4d-mind-analyst.md`, `README-feature-list-mind.md`) plus Chinese translations (`*-CN.md`). The main `README.md` is the project overview.
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues on `MoGHenry/superminds`, via `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` plus `docs/adr/` at repo root. See `docs/agents/domain.md`.
