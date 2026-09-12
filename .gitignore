@@ -37,3 +37,6 @@ my-video-tktk/
 /claude-code-ntfy
 *.stackdump
 skills-lock.json
+
+# Verbatim transcript of a third-party video — kept locally, never committed
+docs/three_layer.txt
