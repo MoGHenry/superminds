@@ -20,8 +20,7 @@ If any file missing, **proceed silently**. Don't flag absence. Don't suggest cre
 ├── docs/adr/
 │   ├── 0001-<decision-slug>.md
 │   └── 0002-<decision-slug>.md
-├── skills/
-└── hooks/
+└── skills/
 ```
 
 ## Use glossary vocabulary

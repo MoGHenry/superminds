@@ -20,6 +20,34 @@ npx skills add https://github.com/MoGHenry/superminds --skill 4d-mind-analyst
 npx skills add https://github.com/MoGHenry/superminds --skill feature-list-mind
 ```
 
+#### 让 Best Minds Optimizer 自动触发
+
+只安装技能还不够——是否加载由 Claude 自行决定。如果希望它在每个实质性提示词上都被调用，需要再安装触发器，即一个 `UserPromptSubmit` 钩子：
+
+```bash
+npx skills add https://github.com/MoGHenry/superminds --skill best-minds-setup
+```
+
+然后在 Claude Code 中运行 `/best-minds-setup`，并选择作用域：
+
+| 作用域 | 配置文件 | 生效范围 |
+|-------|---------|---------|
+| `user` | `~/.claude/settings.json` | 你的所有项目 |
+| `project` | `<项目>/.claude/settings.local.json` | 仅你，且仅在当前项目 |
+| `project-shared` | `<项目>/.claude/settings.json` | 该仓库的所有协作者（会提交到 git） |
+
+触发器只对实质性提示词开口：50 字符以上、10 个词以上、以问号结尾，或包含 "best minds" 之类的显式短语。像"提交代码"这样的简短指令会被直接放行，不产生任何开销。需要预先安装 `jq`。随时可用 `/best-minds-setup uninstall` 移除。
+
+#### 可选：让第一步判断更便宜
+
+`best-minds-triage` 负责判断一个提示词是否值得优化。它在隔离的子智能体中以小模型运行，只返回一个通道（lane），因此会话模型只为真正需要优化的提示词付费：
+
+```bash
+npx skills add https://github.com/MoGHenry/superminds --skill best-minds-triage
+```
+
+仅适用于 Claude Code，因为它依赖 `context: fork`。不安装也没问题——`best-minds-optimizer` 会自行在会话模型上完成分流，同时保持对 Cursor 和 Codex 的可移植性。
+
 或者手动安装，将技能目录复制到你的智能体技能文件夹中：
 
 [Github/superminds](https://github.com/MoGHenry/superminds)

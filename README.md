@@ -20,6 +20,34 @@ npx skills add https://github.com/MoGHenry/superminds --skill 4d-mind-analyst
 npx skills add https://github.com/MoGHenry/superminds --skill feature-list-mind
 ```
 
+#### Make Best Minds Optimizer fire on its own
+
+Installing the skill is not enough by itself — Claude decides when to load it. To have it offered on every substantive prompt, install the trigger, a `UserPromptSubmit` hook:
+
+```bash
+npx skills add https://github.com/MoGHenry/superminds --skill best-minds-setup
+```
+
+Then run `/best-minds-setup` in Claude Code and choose a scope:
+
+| Scope | Settings file | Applies to |
+|-------|---------------|------------|
+| `user` | `~/.claude/settings.json` | you, in every project |
+| `project` | `<project>/.claude/settings.local.json` | you, in this project only |
+| `project-shared` | `<project>/.claude/settings.json` | everyone working in the repo (committed) |
+
+The trigger only speaks up for substantive prompts: 50+ characters, 10+ words, a question mark, or a phrase like "best minds". Short instructions such as "commit this" pass through untouched, so they cost nothing. `jq` is required. Remove it any time with `/best-minds-setup uninstall`.
+
+#### Optional: keep the first pass cheap
+
+`best-minds-triage` decides whether a prompt is worth optimizing at all. It runs in an isolated subagent on a small model and returns a single lane, so your session model only pays for the prompts that actually get optimized:
+
+```bash
+npx skills add https://github.com/MoGHenry/superminds --skill best-minds-triage
+```
+
+Claude Code only, since it relies on `context: fork`. Without it, `best-minds-optimizer` triages itself on the session model — which works fine and keeps the skill portable to Cursor and Codex.
+
 Or install manually by copying the skill directories into your agent's skills folder:
 
 [Github/superminds](https://github.com/MoGHenry/superminds)
@@ -51,7 +79,7 @@ Superminds starts working the moment you ask a substantive question. The skills 
 
 **Best Minds Optimizer** | [skills.sh/superminds/best-minds-optmizer](https://skills.sh/moghenry/superminds/best-minds-optimizer)
 
-intercepts every prompt and runs a 4-lane triage:
+runs a 4-lane triage on the prompts it sees:
 
 ```
 Input → Triage (Skip | Polish | Clarify | Optimize) → Expert-Framed Answer

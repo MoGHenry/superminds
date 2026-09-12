@@ -11,11 +11,11 @@ Skills are installed via `npx skills add https://github.com/MoGHenry/superminds 
 ## Repository Layout
 
 ```
-skills/                  # Source-of-truth skill definitions (3 first-party skills)
+skills/                  # Source-of-truth skill definitions (5 first-party skills)
   <skill>/SKILL.md       # Skill entry point (YAML frontmatter + instructions)
   <skill>/references/    # On-demand reference files loaded by the skill
+  <skill>/scripts/       # Shell scripts the skill runs (best-minds-setup only)
 .claude/skills/          # Third-party skills installed via skills-lock.json
-hooks/skill-directive/   # UserPromptSubmit hook that auto-invokes best-minds-optimizer
 ```
 
 ## First-Party Skills
@@ -23,14 +23,18 @@ hooks/skill-directive/   # UserPromptSubmit hook that auto-invokes best-minds-op
 | Skill | Purpose | Key references |
 |-------|---------|----------------|
 | `best-minds-optimizer` | Pre-processing prompt optimizer. Triages into Skip/Polish/Clarify/Optimize lanes, selects a domain expert, rewrites prompt through their frameworks using 4-D Methodology. | `references/optimize.md`, `references/methodology.md`, `references/polish.md`, `references/clarify.md` |
+| `best-minds-triage` | Forked small-model first pass. Returns one lane (skip/polish/clarify/optimize) so the session model only pays for prompts worth optimizing. Claude Code only — uses `context: fork`, `model:`, `background:`. | none |
 | `4d-mind-analyst` | Dispatches 4 parallel analysis agents (User-Centric, Product, Topic Selection, Curriculum) then synthesizes results. | `references/user-centric.md`, `references/product.md`, `references/topic-selection.md`, `references/curriculum.md`, `references/synthesis.md` |
 | `feature-list-mind` | Session continuity for long-running multi-session agent work. Manages `features.json`, session init/resume, incremental commits. | `references/init-protocol.md`, `references/session-resume.md`, `references/feature-schema.md`, `references/completion-protocol.md`, `references/failure-guards.md` |
+| `best-minds-setup` | Slash command that installs, moves, or removes the best-minds-optimizer trigger (a `UserPromptSubmit` hook) at user or project scope. Replaces the retired `hooks/skill-directive/`. | `scripts/install-trigger.sh`, `scripts/best-minds-gate.sh` |
 
 ## Skill Structure Convention
 
 Every skill follows the same pattern:
 - `SKILL.md` — YAML frontmatter (`name`, `description`) + full instructions. The `description` field controls when the skill auto-triggers.
 - `references/` — Detailed instruction files loaded on demand (progressive disclosure pattern). The skill's SKILL.md tells the agent when to read each reference file.
+- `scripts/` — Shell scripts the skill runs (currently `best-minds-setup` only). Always invoke them as `bash <path>`; the executable bit does not survive every install path.
+- Command-style skills (`best-minds-setup`) set `disable-model-invocation: true`, so they run only when the user types the slash command.
 
 ## Working on Skills
 
@@ -39,7 +43,7 @@ Every skill follows the same pattern:
 
 ## README Files
 
-Each first-party skill has a dedicated README at the repo root (`README-best-minds-optimizer.md`, `README-4d-mind-analyst.md`, `README-feature-list-mind.md`) plus Chinese translations (`*-CN.md`). The main `README.md` is the project overview.
+Each first-party skill has a dedicated README at the repo root (`README-best-minds-optimizer.md`, `README-4d-mind-analyst.md`, `README-feature-list-mind.md`) plus Chinese translations (`*-CN.md`). The main `README.md` is the project overview. `best-minds-setup` has no separate README — it is covered in `README.md` and in its own `SKILL.md`.
 
 ## Agent skills
 
