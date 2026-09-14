@@ -48,15 +48,17 @@ npx skills add https://github.com/MoGHenry/superminds --skill best-minds-triage
 
 Claude Code only, since it relies on `context: fork`. Without it, `best-minds-optimizer` triages itself on the session model — which works fine and keeps the skill portable to Cursor and Codex.
 
-#### Learn your prompt-writing habits
+#### Train your own prompt-writing habits
 
-`best-minds-drill` analyzes your Claude Code transcripts to diagnose prompt-writing patterns against three layers (Spec, Verifier, Environment), then generates personalized lessons and grades prompts you write in return. Tracks recurring problems to help you improve:
+`best-minds-drill` reads the prompts you typed in past Claude Code sessions, finds the turns where you had to correct or re-explain yourself, and names the layer the original prompt was missing: Spec, Verifier or Environment. It then writes a short lesson from your own quotes, has you write a prompt, and grades it:
 
 ```bash
 npx skills add https://github.com/MoGHenry/superminds --skill best-minds-drill
 ```
 
-Then run `/best-minds-drill` to start. First-time users should read the [onboarding guide](https://github.com/MoGHenry/superminds/blob/main/skills/best-minds-drill/assets/onboarding.html).
+Read the starter guide before your first run, because the drills assume you already know the three layers. The guide installs with the skill as a local HTML file, and the [best-minds-drill README](readme/README-best-minds-drill.md) shows how to open it. Then run `/best-minds-drill <repo name or absolute path>`.
+
+Claude Code only, since it reads Claude Code transcripts; `bash` and `jq` are required. Lessons quote your prompts word for word and are saved to `docs/learning/` in the repo you run it from, so keep that folder out of commits if your sessions contain anything sensitive.
 
 Or install manually by copying the skill directories into your agent's skills folder:
 
@@ -79,10 +81,12 @@ Start a new session and ask a substantive question (e.g., "How should I price my
 **Thinking Enhancement**
 - **[best-minds-optimizer](readme/README-best-minds-optimizer.md)** — Prompt optimizer that identifies the world's top domain expert for your question, rewrites your prompt through their frameworks using a structured 4-D Methodology (Deconstruct → Diagnose → Develop → Deliver), and delivers a plain-English answer with a concrete next step. Handles four lanes: Skip, Polish, Clarify, and Optimize.
 - **[4d-mind-analyst](readme/README-4d-mind-analyst.md)** — Multi-perspective analysis engine that dispatches four parallel agents — User-Centric, Product, Topic Selection, and Curriculum thinking — then synthesizes their independent analyses into a unified tiered output.
-- **[best-minds-drill](readme/README-best-minds-drill.md)** — Prompt-writing diagnostic and drill tool. Analyzes your Claude Code transcripts to identify patterns in your prompting habits against three layers (Spec/Verifier/Environment), generates personalized lessons, grades new prompts you write, and tracks recurring problems over time to help you improve your thinking on the fly.
 
 **Agent Workflow**
 - **[feature-list-mind](readme/README-feature-list-mind.md)** — Human-AI collaborative session continuity protocol for long-running agent work. **This is not a fully automated pipeline** — it requires human oversight at every verification gate. The LLM implements and verifies, but only the human user holds the authority to mark features as complete. Manages a JSON feature list, session init sequence, incremental commit discipline, project test suite verification, and user notification gates. Based on Anthropic's [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
+
+**Prompt Practice**
+- **[best-minds-drill](readme/README-best-minds-drill.md)** — Prompt-habit trainer built on your own Claude Code transcripts. Finds *correction pairs* — a prompt plus the later turn where you had to fix it — and names the layer the original was missing (Spec, Verifier or Environment). Then writes a short HTML lesson from your own quotes, grades the prompt you write back, and keeps records across projects so it can tell you when a habit you'd fixed comes back. Ships with a bilingual starter guide to read before the first run.
 
 ## How It Works
 
@@ -151,6 +155,18 @@ are incomplete, halt and notify the user.
 ```
 
 This configuration ensures the LLM cannot silently advance the project state. Every status transition requires explicit human authorization.
+
+**Best Minds Drill** | [skills.sh/superminds/best-minds-drill](https://skills.sh/moghenry/superminds/best-minds-drill)
+
+runs only when you type `/best-minds-drill <repo name or absolute path>`, and works on your own past sessions:
+
+```
+Pick Sessions → Diagnose → Lesson → Your Prompt → Grade (Spec | Verifier | Environment) → Records
+```
+
+- **Your own words as evidence** — Every problem it reports is a prompt you typed, quoted with its date, beside the later turn where you had to fix it
+- **One change, not a list** — Each layer gets pass, partial or missing, and you get the single change with the biggest payoff
+- **Relapse detection** — Records live in `~/.claude/best-minds-drill/`, so a habit you'd fixed gets flagged when it comes back, in any project
 
 ### How They Work Together
 

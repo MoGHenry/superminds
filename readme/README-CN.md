@@ -48,6 +48,18 @@ npx skills add https://github.com/MoGHenry/superminds --skill best-minds-triage
 
 仅适用于 Claude Code，因为它依赖 `context: fork`。不安装也没问题——`best-minds-optimizer` 会自行在会话模型上完成分流，同时保持对 Cursor 和 Codex 的可移植性。
 
+#### 训练你自己的提示词习惯
+
+`best-minds-drill` 会读你在过去的 Claude Code 会话里打过的提示词，找出你不得不回头纠正、重新解释的那些轮次，并指出原来那条提示词缺的是哪一层：Spec、Verifier 还是 Environment。然后用你自己的原话写一份简短的课，让你写一条提示词，再给它打分：
+
+```bash
+npx skills add https://github.com/MoGHenry/superminds --skill best-minds-drill
+```
+
+第一次运行前，请先读完入门指南，因为这些练习默认你已经懂这三层。指南是随 skill 一起安装的本地 HTML 文件，打开方式见 [best-minds-drill 的 README](README-best-minds-drill-CN.md)。读完再运行 `/best-minds-drill <仓库名或绝对路径>`。
+
+仅适用于 Claude Code，因为它读取的是 Claude Code 的对话记录；需要 `bash` 和 `jq`。课里会逐字引用你的提示词，并保存在你运行命令的那个仓库的 `docs/learning/` 下；如果会话里有敏感内容，不要提交这个文件夹。
+
 或者手动安装，将技能目录复制到你的智能体技能文件夹中：
 
 [Github/superminds](https://github.com/MoGHenry/superminds)
@@ -72,6 +84,9 @@ npx skills add https://github.com/MoGHenry/superminds --skill best-minds-triage
 
 **智能体工作流**
 - **[feature-list-mind](README-feature-list-mind-CN.md)** — 人机协同（Human-AI Collaborative）的会话连续性协议，用于长时间智能体工作。**这不是完全自动化的流程**——LLM 负责实现和验证，但只有人类用户才有权标记功能为完成。管理 JSON 功能列表、会话初始化序列、增量提交纪律、项目测试套件验证和用户通知关卡。需要在项目 `CLAUDE.md` 中配置 Project State Protocol。基于 Anthropic 的[长时间运行 Agent 的有效约束](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)。
+
+**提示词练习**
+- **[best-minds-drill](README-best-minds-drill-CN.md)** — 基于你自己 Claude Code 对话记录的提示词习惯训练。找出*纠正对*——一条提示词，加上后来你不得不回头修正它的那一轮——并指出原来那条缺的是哪一层（Spec、Verifier 或 Environment）。然后用你自己的原话写一份简短的 HTML 课，给你写回来的提示词打分，并跨项目保存记录，在你改掉的习惯又回来时指出来。附带一份中英双语的入门指南，第一次使用前先读。
 
 ### 协同工作方式
 
@@ -153,6 +168,18 @@ are incomplete, halt and notify the user.
 ```
 
 此配置确保 LLM 不能静默推进项目状态。每次状态转换都需要明确的人类授权。
+
+### **Best Minds Drill（提示词习惯训练）** | [skills.sh/superminds/best-minds-drill](https://skills.sh/moghenry/superminds/best-minds-drill)
+
+只有你输入 `/best-minds-drill <仓库名或绝对路径>` 时才会运行，练的是你自己过去的会话：
+
+```
+选会话 → 诊断 → 写课 → 你写提示词 → 打分（Spec | Verifier | Environment）→ 记录
+```
+
+- **用你自己的原话当证据** — 报告的每个问题都是你打过的一条提示词，附带日期，旁边是你后来不得不回头修正它的那一轮
+- **只给一处修改** — 每一层给出 pass、partial 或 missing，最后只给你收益最大的那一处修改
+- **复发检测** — 记录保存在 `~/.claude/best-minds-drill/`，改掉的习惯又回来时，不管在哪个项目都会被指出
 
 ## 核心模式
 
