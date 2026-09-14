@@ -11,10 +11,10 @@ Skills are installed via `npx skills add https://github.com/MoGHenry/superminds 
 ## Repository Layout
 
 ```
-skills/                  # Source-of-truth skill definitions (5 first-party skills)
+skills/                  # Source-of-truth skill definitions (6 first-party skills)
   <skill>/SKILL.md       # Skill entry point (YAML frontmatter + instructions)
   <skill>/references/    # On-demand reference files loaded by the skill
-  <skill>/scripts/       # Shell scripts the skill runs (best-minds-setup only)
+  <skill>/scripts/       # Shell scripts the skill runs (best-minds-setup, best-minds-drill)
 .claude/skills/          # Third-party skills installed via skills-lock.json
 ```
 
@@ -27,14 +27,15 @@ skills/                  # Source-of-truth skill definitions (5 first-party skil
 | `4d-mind-analyst` | Dispatches 4 parallel analysis agents (User-Centric, Product, Topic Selection, Curriculum) then synthesizes results. | `references/user-centric.md`, `references/product.md`, `references/topic-selection.md`, `references/curriculum.md`, `references/synthesis.md` |
 | `feature-list-mind` | Session continuity for long-running multi-session agent work. Manages `features.json`, session init/resume, incremental commits. | `references/init-protocol.md`, `references/session-resume.md`, `references/feature-schema.md`, `references/completion-protocol.md`, `references/failure-guards.md` |
 | `best-minds-setup` | Slash command that installs, moves, or removes the best-minds-optimizer trigger (a `UserPromptSubmit` hook) at user or project scope. Replaces the retired `hooks/skill-directive/`. | `scripts/install-trigger.sh`, `scripts/best-minds-gate.sh` |
+| `best-minds-drill` | Slash command that mines the user's own Claude Code transcripts, diagnoses their prompt-writing habits against the Spec/Verifier/Environment layers, writes an HTML lesson to `docs/learning/`, grades the prompt they write back, and tracks recurring problems in `~/.claude/best-minds-drill/`. | `references/diagnosis.md`, `references/lesson.md`, `references/grading.md`, `references/records.md`, `references/evidence.md`, `scripts/find-sessions.sh`, `scripts/extract-turns.sh` |
 
 ## Skill Structure Convention
 
 Every skill follows the same pattern:
 - `SKILL.md` — YAML frontmatter (`name`, `description`) + full instructions. The `description` field controls when the skill auto-triggers.
 - `references/` — Detailed instruction files loaded on demand (progressive disclosure pattern). The skill's SKILL.md tells the agent when to read each reference file.
-- `scripts/` — Shell scripts the skill runs (currently `best-minds-setup` only). Always invoke them as `bash <path>`; the executable bit does not survive every install path.
-- Command-style skills (`best-minds-setup`) set `disable-model-invocation: true`, so they run only when the user types the slash command.
+- `scripts/` — Shell scripts the skill runs (`best-minds-setup`, `best-minds-drill`). Always invoke them as `bash <path>`; the executable bit does not survive every install path.
+- Command-style skills (`best-minds-setup`, `best-minds-drill`) set `disable-model-invocation: true`, so they run only when the user types the slash command.
 
 ## Working on Skills
 
