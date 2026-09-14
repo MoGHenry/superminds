@@ -2,7 +2,7 @@
 
 # Superminds
 
-English | [中文](https://github.com/MoGHenry/superminds/blob/main/README-CN.md) | [skills.sh/superminds](https://skills.sh/moghenry/superminds)
+English | [中文](https://github.com/MoGHenry/superminds/blob/main/readme/README-CN.md) | [skills.sh/superminds](https://skills.sh/moghenry/superminds)
 
 </div>
 
@@ -67,11 +67,11 @@ Start a new session and ask a substantive question (e.g., "How should I price my
 ### Skills Library
 
 **Thinking Enhancement**
-- **[best-minds-optimizer](README-best-minds-optimizer.md)** — Prompt optimizer that identifies the world's top domain expert for your question, rewrites your prompt through their frameworks using a structured 4-D Methodology (Deconstruct → Diagnose → Develop → Deliver), and delivers a plain-English answer with a concrete next step. Handles four lanes: Skip, Polish, Clarify, and Optimize.
-- **[4d-mind-analyst](README-4d-mind-analyst.md)** — Multi-perspective analysis engine that dispatches four parallel agents — User-Centric, Product, Topic Selection, and Curriculum thinking — then synthesizes their independent analyses into a unified tiered output.
+- **[best-minds-optimizer](readme/README-best-minds-optimizer.md)** — Prompt optimizer that identifies the world's top domain expert for your question, rewrites your prompt through their frameworks using a structured 4-D Methodology (Deconstruct → Diagnose → Develop → Deliver), and delivers a plain-English answer with a concrete next step. Handles four lanes: Skip, Polish, Clarify, and Optimize.
+- **[4d-mind-analyst](readme/README-4d-mind-analyst.md)** — Multi-perspective analysis engine that dispatches four parallel agents — User-Centric, Product, Topic Selection, and Curriculum thinking — then synthesizes their independent analyses into a unified tiered output.
 
 **Agent Workflow**
-- **[feature-list-mind](README-feature-list-mind.md)** — Human-AI collaborative session continuity protocol for long-running agent work. **This is not a fully automated pipeline** — it requires human oversight at every verification gate. The LLM implements and verifies, but only the human user holds the authority to mark features as complete. Manages a JSON feature list, session init sequence, incremental commit discipline, project test suite verification, and user notification gates. Based on Anthropic's [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
+- **[feature-list-mind](readme/README-feature-list-mind.md)** — Human-AI collaborative session continuity protocol for long-running agent work. **This is not a fully automated pipeline** — it requires human oversight at every verification gate. The LLM implements and verifies, but only the human user holds the authority to mark features as complete. Manages a JSON feature list, session init sequence, incremental commit discipline, project test suite verification, and user notification gates. Based on Anthropic's [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
 
 ## How It Works
 

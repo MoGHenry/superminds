@@ -43,7 +43,7 @@ Every skill follows the same pattern:
 
 ## README Files
 
-Each first-party skill has a dedicated README at the repo root (`README-best-minds-optimizer.md`, `README-4d-mind-analyst.md`, `README-feature-list-mind.md`) plus Chinese translations (`*-CN.md`). The main `README.md` is the project overview. `best-minds-setup` has no separate README — it is covered in `README.md` and in its own `SKILL.md`.
+Each first-party skill has a dedicated README in `readme/` (`README-best-minds-optimizer.md`, `README-4d-mind-analyst.md`, `README-feature-list-mind.md`) plus Chinese translations (`*-CN.md`). The main `README.md` is the project overview and the only README at the repo root; its Chinese translation is `readme/README-CN.md`. `best-minds-setup` has no separate README — it is covered in `README.md` and in its own `SKILL.md`.
 
 ## Agent skills
 

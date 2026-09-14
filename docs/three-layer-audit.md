@@ -172,7 +172,7 @@ Finding 6 is ranked by known cost only. It may turn out to matter most.
   - The documented snippet fails (exit 5, "Cannot iterate over null").
   - The nested version prints the command (exit 0).
 - **Not executable.** The script is committed as mode `100644`. Claude Code runs a hook's `command` through a shell, so running the file directly by path fails: `bash -c <path>` gives `Permission denied` (exit 126). `bash <path>` exits 0 and prints the directive.
-- **No other install guide.** Neither `README.md` nor `README-best-minds-optimizer.md` explains how to install the hook, so this comment is the only guide. Yet `README.md:54` says the skill "intercepts every prompt".
+- **No other install guide.** Neither `README.md` nor `readme/README-best-minds-optimizer.md` explains how to install the hook, so this comment is the only guide. Yet `README.md:54` says the skill "intercepts every prompt".
 
 **Cost:** Anyone who follows the snippet gets no interception. Claude Code's settings guidance also warns that a settings file broken this way silently disables every setting in it; the guidance groups wrong nesting with malformed JSON. I haven't seen that happen.
 
