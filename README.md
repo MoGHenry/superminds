@@ -2,7 +2,7 @@
 
 # Superminds
 
-English | [中文](https://github.com/MoGHenry/superminds/blob/main/README-CN.md) | [skills.sh/superminds](https://skills.sh/moghenry/superminds)
+English | [中文](https://github.com/MoGHenry/superminds/blob/main/readme/README-CN.md) | [skills.sh/superminds](https://skills.sh/moghenry/superminds)
 
 </div>
 
@@ -19,6 +19,46 @@ npx skills add https://github.com/MoGHenry/superminds --skill best-minds-optimiz
 npx skills add https://github.com/MoGHenry/superminds --skill 4d-mind-analyst
 npx skills add https://github.com/MoGHenry/superminds --skill feature-list-mind
 ```
+
+#### Make Best Minds Optimizer fire on its own
+
+Installing the skill is not enough by itself — Claude decides when to load it. To have it offered on every substantive prompt, install the trigger, a `UserPromptSubmit` hook:
+
+```bash
+npx skills add https://github.com/MoGHenry/superminds --skill best-minds-setup
+```
+
+Then run `/best-minds-setup` in Claude Code and choose a scope:
+
+| Scope | Settings file | Applies to |
+|-------|---------------|------------|
+| `user` | `~/.claude/settings.json` | you, in every project |
+| `project` | `<project>/.claude/settings.local.json` | you, in this project only |
+| `project-shared` | `<project>/.claude/settings.json` | everyone working in the repo (committed) |
+
+The trigger only speaks up for substantive prompts: 50+ characters, 10+ words, a question mark, or a phrase like "best minds". Short instructions such as "commit this" pass through untouched, so they cost nothing. `jq` is required. Remove it any time with `/best-minds-setup uninstall`.
+
+#### Optional: keep the first pass cheap
+
+`best-minds-triage` decides whether a prompt is worth optimizing at all. It runs in an isolated subagent on a small model and returns a single lane, so your session model only pays for the prompts that actually get optimized:
+
+```bash
+npx skills add https://github.com/MoGHenry/superminds --skill best-minds-triage
+```
+
+Claude Code only, since it relies on `context: fork`. Without it, `best-minds-optimizer` triages itself on the session model — which works fine and keeps the skill portable to Cursor and Codex.
+
+#### Train your own prompt-writing habits
+
+`best-minds-drill` reads the prompts you typed in past Claude Code sessions, finds the turns where you had to correct or re-explain yourself, and names the layer the original prompt was missing: Spec, Verifier or Environment. It then writes a short lesson from your own quotes, has you write a prompt, and grades it:
+
+```bash
+npx skills add https://github.com/MoGHenry/superminds --skill best-minds-drill
+```
+
+Read the starter guide before your first run, because the drills assume you already know the three layers. The guide installs with the skill as a local HTML file, and the [best-minds-drill README](readme/README-best-minds-drill.md) shows how to open it. Then run `/best-minds-drill <repo name or absolute path>`.
+
+Claude Code only, since it reads Claude Code transcripts; `bash` and `jq` are required. Lessons quote your prompts word for word and are saved to `docs/learning/` in the repo you run it from, so keep that folder out of commits if your sessions contain anything sensitive.
 
 Or install manually by copying the skill directories into your agent's skills folder:
 
@@ -39,11 +79,14 @@ Start a new session and ask a substantive question (e.g., "How should I price my
 ### Skills Library
 
 **Thinking Enhancement**
-- **[best-minds-optimizer](README-best-minds-optimizer.md)** — Prompt optimizer that identifies the world's top domain expert for your question, rewrites your prompt through their frameworks using a structured 4-D Methodology (Deconstruct → Diagnose → Develop → Deliver), and delivers a plain-English answer with a concrete next step. Handles four lanes: Skip, Polish, Clarify, and Optimize.
-- **[4d-mind-analyst](README-4d-mind-analyst.md)** — Multi-perspective analysis engine that dispatches four parallel agents — User-Centric, Product, Topic Selection, and Curriculum thinking — then synthesizes their independent analyses into a unified tiered output.
+- **[best-minds-optimizer](readme/README-best-minds-optimizer.md)** — Prompt optimizer that identifies the world's top domain expert for your question, rewrites your prompt through their frameworks using a structured 4-D Methodology (Deconstruct → Diagnose → Develop → Deliver), and delivers a plain-English answer with a concrete next step. Handles four lanes: Skip, Polish, Clarify, and Optimize.
+- **[4d-mind-analyst](readme/README-4d-mind-analyst.md)** — Multi-perspective analysis engine that dispatches four parallel agents — User-Centric, Product, Topic Selection, and Curriculum thinking — then synthesizes their independent analyses into a unified tiered output.
 
 **Agent Workflow**
-- **[feature-list-mind](README-feature-list-mind.md)** — Human-AI collaborative session continuity protocol for long-running agent work. **This is not a fully automated pipeline** — it requires human oversight at every verification gate. The LLM implements and verifies, but only the human user holds the authority to mark features as complete. Manages a JSON feature list, session init sequence, incremental commit discipline, project test suite verification, and user notification gates. Based on Anthropic's [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
+- **[feature-list-mind](readme/README-feature-list-mind.md)** — Human-AI collaborative session continuity protocol for long-running agent work. **This is not a fully automated pipeline** — it requires human oversight at every verification gate. The LLM implements and verifies, but only the human user holds the authority to mark features as complete. Manages a JSON feature list, session init sequence, incremental commit discipline, project test suite verification, and user notification gates. Based on Anthropic's [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
+
+**Prompt Practice**
+- **[best-minds-drill](readme/README-best-minds-drill.md)** — Prompt-habit trainer built on your own Claude Code transcripts. Finds *correction pairs* — a prompt plus the later turn where you had to fix it — and names the layer the original was missing (Spec, Verifier or Environment). Then writes a short HTML lesson from your own quotes, grades the prompt you write back, and keeps records across projects so it can tell you when a habit you'd fixed comes back. Ships with a bilingual starter guide to read before the first run.
 
 ## How It Works
 
@@ -51,7 +94,7 @@ Superminds starts working the moment you ask a substantive question. The skills 
 
 **Best Minds Optimizer** | [skills.sh/superminds/best-minds-optmizer](https://skills.sh/moghenry/superminds/best-minds-optimizer)
 
-intercepts every prompt and runs a 4-lane triage:
+runs a 4-lane triage on the prompts it sees:
 
 ```
 Input → Triage (Skip | Polish | Clarify | Optimize) → Expert-Framed Answer
@@ -112,6 +155,18 @@ are incomplete, halt and notify the user.
 ```
 
 This configuration ensures the LLM cannot silently advance the project state. Every status transition requires explicit human authorization.
+
+**Best Minds Drill** | [skills.sh/superminds/best-minds-drill](https://skills.sh/moghenry/superminds/best-minds-drill)
+
+runs only when you type `/best-minds-drill <repo name or absolute path>`, and works on your own past sessions:
+
+```
+Pick Sessions → Diagnose → Lesson → Your Prompt → Grade (Spec | Verifier | Environment) → Records
+```
+
+- **Your own words as evidence** — Every problem it reports is a prompt you typed, quoted with its date, beside the later turn where you had to fix it
+- **One change, not a list** — Each layer gets pass, partial or missing, and you get the single change with the biggest payoff
+- **Relapse detection** — Records live in `~/.claude/best-minds-drill/`, so a habit you'd fixed gets flagged when it comes back, in any project
 
 ### How They Work Together
 

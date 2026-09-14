@@ -13,7 +13,9 @@ The core insight: LLMs are simulators. A prompt framed through Charlie Munger's 
 
 ### Step 1: Triage — Skip, Polish, Clarify, or Optimize
 
-Before doing anything, classify the user's prompt into one of four lanes:
+Before doing anything, classify the user's prompt into one of four lanes.
+
+**If a `best-minds-triage` verdict for this prompt is already in the conversation, use its lane and skip the rest of this step.** That skill runs on a small model in a fork precisely so this classification costs nothing here. Re-deciding wastes the saving and risks contradicting it. Triage yourself only when no verdict is present.
 
 **Optimize** — The prompt is substantive and clear enough that expert framing will sharpen it:
 - The question has a definite problem structure even if the user phrased it loosely

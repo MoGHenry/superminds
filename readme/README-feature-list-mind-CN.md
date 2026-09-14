@@ -2,7 +2,7 @@
 
 # Feature List Mind
 
-[English](https://github.com/MoGHenry/superminds/blob/main/README-feature-list-mind.md) | 中文 | [skills.sh](https://skills.sh/moghenry/superminds/feature-list-mind)
+[English](https://github.com/MoGHenry/superminds/blob/main/readme/README-feature-list-mind.md) | 中文 | [skills.sh](https://skills.sh/moghenry/superminds/feature-list-mind)
 
 </div>
 

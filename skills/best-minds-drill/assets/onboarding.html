@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Three Layers · 三层提示词法</title>
+<script>
+(function(){
+  var l; try { l = localStorage.getItem("bmd-lang"); } catch (e) {}
+  if (l !== "zh" && l !== "en") l = (navigator.language || "").toLowerCase().indexOf("zh") === 0 ? "zh" : "en";
+  document.documentElement.setAttribute("data-lang", l);
+  document.documentElement.lang = l === "zh" ? "zh-CN" : "en";
+})();
+</script>
+<style>
+/* Every custom property on :root must also be redefined in the dark block. */
+:root{
+  --bg:#f7f5f0; --panel:#ffffff; --fg:#1f1d1a; --mut:#645e55; --rule:#dcd6ca;
+  --quote-bg:#efebe2; --quote-bar:#b4a992; --accent:#8a3e2b; --accent-soft:#f3e4de;
+  --ok:#3f6a37; --ok-bg:#e7f0e3; --no:#9a3520; --no-bg:#f7e3dd;
+  --code-bg:#eae6dc; --shadow:0 1px 2px rgba(40,34,24,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#151412; --panel:#1e1d1a; --fg:#e8e4db; --mut:#a09a8f; --rule:#35322c;
+    --quote-bg:#252420; --quote-bar:#6b6353; --accent:#e39c7e; --accent-soft:#33261f;
+    --ok:#9ec48f; --ok-bg:#1f2a1c; --no:#ea957a; --no-bg:#301f1a;
+    --code-bg:#28261f; --shadow:0 1px 2px rgba(0,0,0,.35);
+  }
+}
+html[data-lang="zh"] [data-l="en"], html[data-lang="en"] [data-l="zh"]{display:none !important}
+
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--fg);
+  font-family:Georgia,"Songti SC","Noto Serif CJK SC","Source Han Serif SC","Times New Roman",serif;
+  font-size:17px; line-height:1.72}
+html[data-lang="zh"] body{font-family:"Songti SC","Noto Serif CJK SC","Source Han Serif SC",Georgia,serif}
+main{max-width:36em; margin:0 auto; padding:2.6rem 1.1rem 6rem}
+.sans,table,nav,button,.lab,.sub,.qn,cite,summary,.bar{font-family:ui-sans-serif,system-ui,-apple-system,"Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif}
+h1{font-size:1.8rem; line-height:1.25; margin:0 0 .35rem; letter-spacing:-.012em}
+h2{font-size:1.28rem; margin:3.2rem 0 .8rem; padding-top:1.3rem; border-top:1px solid var(--rule); scroll-margin-top:1rem}
+h3{font-size:1.02rem; margin:1.8rem 0 .5rem}
+p{margin:0 0 1rem} ul,ol{margin:0 0 1rem; padding-left:1.3rem} li{margin:.3rem 0}
+a{color:var(--accent); text-underline-offset:2px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.86em; background:var(--code-bg); padding:.06em .32em; border-radius:3px}
+pre{background:var(--code-bg); padding:.8rem .95rem; border-radius:5px; overflow-x:auto; font-size:.85rem; line-height:1.55; margin:.6rem 0 1rem}
+pre code{background:none; padding:0}
+.sub{color:var(--mut); font-size:.86rem; margin:0 0 1.2rem}
+.lead{font-size:1.04rem}
+.mut{color:var(--mut)}
+.note{color:var(--mut); font-size:.9rem}
+
+.topbar{display:flex; justify-content:flex-end; margin:0 0 1rem}
+#langbtn{cursor:pointer; font-size:.8rem; padding:.32rem .7rem; border:1px solid var(--rule); border-radius:999px; background:var(--panel); color:var(--fg)}
+#langbtn:hover{border-color:var(--quote-bar)}
+nav.toc{display:flex; flex-wrap:wrap; gap:.3rem .9rem; font-size:.82rem; margin:0 0 2rem; padding:.6rem .8rem; background:var(--panel); border:1px solid var(--rule); border-radius:6px}
+nav.toc a{text-decoration:none}
+
+.scroll{overflow-x:auto; margin:1rem 0}
+table{width:100%; border-collapse:collapse; font-size:.85rem}
+th,td{text-align:left; padding:.48rem .55rem; border-bottom:1px solid var(--rule); vertical-align:top}
+th{color:var(--mut); font-weight:600; font-size:.73rem; letter-spacing:.04em; text-transform:uppercase}
+td.k{white-space:nowrap; font-weight:600}
+
+.card{background:var(--panel); border:1px solid var(--rule); border-radius:7px; padding:1rem 1.1rem; margin:1.2rem 0; box-shadow:var(--shadow)}
+.def{font-size:1.06rem; margin:.2rem 0 .8rem}
+.def b{background:var(--accent-soft); padding:.04em .25em; border-radius:3px}
+
+.scene{font-size:.92rem; color:var(--mut); margin:1.2rem 0 .5rem}
+.pbox{border-left:3px solid var(--quote-bar); background:var(--quote-bg); padding:.6rem .9rem; margin:.55rem 0; font-size:.96rem}
+.pbox .lab{display:block; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--mut); margin-bottom:.3rem}
+.pbox.weak{border-left-color:var(--no)}
+.pbox.strong{border-left-color:var(--ok)}
+.pbox mark{background:var(--accent-soft); color:var(--fg); padding:.03em .2em; border-radius:2px}
+.test{border:1px dashed var(--quote-bar); border-radius:6px; padding:.65rem .9rem; margin:1rem 0; font-size:.95rem}
+.test .lab{font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--mut); display:block; margin-bottom:.2rem}
+
+/* quiz */
+#scorebar{position:sticky; top:0; z-index:5; margin:0 0 1rem; background:var(--panel); border:1px solid var(--rule); border-radius:6px; padding:.5rem .8rem; font-size:.82rem; color:var(--mut); box-shadow:var(--shadow)}
+#scorebar b{color:var(--fg)}
+.quiz{background:var(--panel); border:1px solid var(--rule); border-radius:7px; padding:1rem 1.05rem; margin:1rem 0; box-shadow:var(--shadow)}
+.qn{font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--mut); margin-bottom:.45rem}
+.ctx{font-size:.93rem; margin:0 0 .5rem}
+.qp{background:var(--quote-bg); border-left:3px solid var(--quote-bar); padding:.55rem .85rem; margin:0 0 .7rem; font-size:.96rem}
+.ask{font-weight:600; margin:.2rem 0 .65rem; font-size:.95rem}
+.opts{display:flex; flex-wrap:wrap; gap:.45rem}
+.opts.col{flex-direction:column}
+.opts button{flex:1 1 auto; min-width:6.4em; cursor:pointer; font-size:.88rem; line-height:1.5; padding:.5rem .7rem; border:1px solid var(--rule); border-radius:5px; background:var(--bg); color:var(--fg); text-align:center}
+.opts.col button{text-align:left; width:100%}
+.opts button:hover:not(:disabled){border-color:var(--quote-bar)}
+.opts button:disabled{cursor:default; opacity:.78}
+.opts button.right{background:var(--ok-bg); border-color:var(--ok); opacity:1}
+.opts button.wrong{background:var(--no-bg); border-color:var(--no); opacity:1}
+.fb{margin-top:.85rem; padding-top:.8rem; border-top:1px solid var(--rule); font-size:.93rem}
+.verdict{font-family:ui-sans-serif,system-ui,"PingFang SC",sans-serif; font-weight:700; font-size:.86rem; margin-bottom:.3rem}
+.verdict.y{color:var(--ok)} .verdict.n{color:var(--no)}
+.fb .correct{margin-top:.75rem; padding:.6rem .8rem; background:var(--ok-bg); border-radius:5px}
+.fb .correct .verdict{color:var(--ok)}
+#results{display:none}
+#results.show{display:block}
+.bars{margin:.6rem 0 1rem}
+.bar{display:grid; grid-template-columns:10em 1fr 3em; gap:.6rem; align-items:center; font-size:.84rem; margin:.3rem 0}
+.bar .track{height:.5rem; background:var(--quote-bg); border-radius:999px; overflow:hidden}
+.bar .fill{height:100%; background:var(--ok); border-radius:999px}
+.bar .fill.low{background:var(--no)}
+#retake{cursor:pointer; font-size:.86rem; padding:.45rem .9rem; border:1px solid var(--rule); border-radius:5px; background:var(--bg); color:var(--fg)}
+
+@media (max-width:480px){ body{font-size:16px} h1{font-size:1.5rem} .bar{grid-template-columns:7.5em 1fr 2.6em} }
+@media print{
+  body{background:#fff; color:#000; font-size:10.5pt}
+  .topbar,nav.toc,#scorebar,.opts,#retake{display:none}
+  .card,.quiz{box-shadow:none; break-inside:avoid}
+  a{color:#000}
+}
+</style>
+</head>
+<body>
+<main>
+
+<div class="topbar"><button id="langbtn" type="button" aria-label="Switch language">中文 / English</button></div>
+
+<!-- ============ HEADER ============ -->
+<div data-l="en">
+  <h1>The Three Layers</h1>
+  <p class="sub">Starter guide for <code>best-minds-drill</code> · about 15 minutes · 10 exercises</p>
+  <p class="lead"><code>/best-minds-drill</code> reads your own Claude Code transcripts, diagnoses how you write prompts against three layers, and drills you on what it finds. But it <strong>assumes you already know the three layers</strong>. If you don't, its exercises can only be solved by reading the answers.</p>
+  <p>This guide is the missing first step: what each layer is, how it shows up in a real prompt, and ten exercises that tell you whether you're ready.</p>
+</div>
+<div data-l="zh">
+  <h1>三层提示词法</h1>
+  <p class="sub"><code>best-minds-drill</code> 入门指南 · 约 15 分钟 · 10 道练习</p>
+  <p class="lead"><code>/best-minds-drill</code> 会读你自己的 Claude Code 对话记录，按三层逻辑诊断你写提示词的习惯，再出题让你练。但它<strong>假设你已经懂这三层</strong>。不懂的话，它出的题你只能看答案才能做。</p>
+  <p>这份指南补上缺的第一步：三层各是什么，它们在真实提示词里长什么样，最后 10 道题告诉你是否准备好了。</p>
+</div>
+
+<nav class="toc">
+  <a href="#layers"><span data-l="en">Overview</span><span data-l="zh">总览</span></a>
+  <a href="#spec">Spec</a>
+  <a href="#verifier">Verifier</a>
+  <a href="#environment">Environment</a>
+  <a href="#apart"><span data-l="en">Telling them apart</span><span data-l="zh">怎么区分</span></a>
+  <a href="#practice"><span data-l="en">10 exercises</span><span data-l="zh">10 道练习</span></a>
+  <a href="#sources"><span data-l="en">Sources</span><span data-l="zh">出处</span></a>
+</nav>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="layers">
+<div data-l="en">
+  <h2>Overview</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Layer</th><th>When</th><th>The question it answers</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Spec</td><td>Before the work</td><td>What do I want, why, and how much of it?</td></tr>
+      <tr><td class="k">Verifier</td><td>After delivery</td><td>What will I compare it against to know it's right?</td></tr>
+      <tr><td class="k">Environment</td><td>Next time</td><td>What should hold without me saying it again?</td></tr>
+    </tbody>
+  </table></div>
+  <p>The layers line up in time: <strong>before, after, next time.</strong> Hold on to that order and the definitions follow from it.</p>
+</div>
+<div data-l="zh">
+  <h2>总览</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>层</th><th>时间点</th><th>它回答的问题</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Spec</td><td>开工前</td><td>我要什么？为什么要？做多大？</td></tr>
+      <tr><td class="k">Verifier</td><td>交付后</td><td>拿什么去比，才知道做对了？</td></tr>
+      <tr><td class="k">Environment</td><td>下一次</td><td>什么东西不用我再说一遍？</td></tr>
+    </tbody>
+  </table></div>
+  <p>三层按时间排：<strong>开工前、交付后、下一次。</strong>记住这个顺序，定义自然就出来了。</p>
+</div>
+</section>
+
+<!-- ============ SPEC ============ -->
+<section id="spec">
+<div data-l="en">
+  <h2>Layer 1 · Spec</h2>
+  <p class="def">Before the work starts, say what you want, why, and how much of it. <b>Spec = purpose + boundary.</b> One without the other doesn't count.</p>
+  <ul>
+    <li><strong>Purpose</strong>: the decision the work feeds. “Write a report” is a task. “Decide where next quarter's ad budget goes” is a purpose.</li>
+    <li><strong>Boundary</strong>: how big, where it stops, what's out of scope.</li>
+  </ul>
+  <p class="scene"><strong>Scenario.</strong> You run operations at a small company. Your manager asks you to “take a look at last quarter's sales.”</p>
+  <div class="pbox weak"><span class="lab">❌ Weak</span>Analyze last quarter's sales data</div>
+  <div class="pbox strong"><span class="lab">✅ Strong</span>Analyze last quarter's sales data. <mark>I need to decide which channel gets more of next quarter's ad budget.</mark> <mark>Only the three online channels — search, social, email; ignore in-store.</mark> <mark>If the data can't support a conclusion, tell me what's missing instead of forcing one.</mark></div>
+  <div class="scroll"><table>
+    <thead><tr><th>Fragment</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>Analyze last quarter's sales data</td><td>The task — the deliverable</td></tr>
+      <tr><td>I need to decide which channel…</td><td><strong>Purpose.</strong> Decides what to calculate (return per channel) and what not to.</td></tr>
+      <tr><td>Only the three online channels</td><td><strong>Boundary.</strong> Decides when the work is done.</td></tr>
+      <tr><td>Tell me what's missing instead of forcing one</td><td><strong>Surfaces assumptions.</strong> Every assumption the AI makes silently is a chance to drift.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="test"><span class="lab">The one-line test</span><strong>Cross out the deliverable. Is a decision left?</strong><br>“Analyze <s>sales data</s>” → nothing left. Spec is missing.</div>
+  <p class="note">Same task, different purpose, different work: if the purpose were “decide whether to let a sales rep go”, you'd calculate completely different things. The AI can't choose your purpose for you — but it can help you find it. When you're unsure, ask it to interview you before it starts.</p>
+</div>
+<div data-l="zh">
+  <h2>第 1 层 · Spec</h2>
+  <p class="def">开工之前，说清楚你要什么、为什么要、做多大。<b>Spec = 目的 + 边界。</b>少一个都不算。</p>
+  <ul>
+    <li><strong>目的</strong>：这件事服务于哪个决定。「写一份报告」是任务；「决定下季度广告预算往哪放」是目的。</li>
+    <li><strong>边界</strong>：做多大、做到哪为止、哪些不管。</li>
+  </ul>
+  <p class="scene"><strong>情景。</strong>你在一家小公司做运营，老板让你「看看上季度的销售数据」。</p>
+  <div class="pbox weak"><span class="lab">❌ 弱</span>帮我分析一下上季度的销售数据</div>
+  <div class="pbox strong"><span class="lab">✅ 强</span>帮我分析上季度的销售数据。<mark>我要决定的是下季度的广告预算往哪个渠道多放。</mark><mark>只看线上三个渠道：搜索、社交、邮件，线下门店不用管。</mark><mark>数据不够下结论的话，直接告诉我缺什么，不要硬凑。</mark></div>
+  <div class="scroll"><table>
+    <thead><tr><th>片段</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td>分析上季度的销售数据</td><td>任务，也就是交付物</td></tr>
+      <tr><td>我要决定的是……往哪个渠道多放</td><td><strong>目的。</strong>决定了该算什么（各渠道回报），不该算什么。</td></tr>
+      <tr><td>只看线上三个渠道</td><td><strong>边界。</strong>决定了什么时候算做完。</td></tr>
+      <tr><td>缺什么就直说，不要硬凑</td><td><strong>让假设浮上来。</strong>AI 默默做的每个假设，都是跑偏的机会。</td></tr>
+    </tbody>
+  </table></div>
+  <div class="test"><span class="lab">一句话检验</span><strong>把交付物的名字划掉，还剩一个决定吗？</strong><br>「帮我分析<s>销售数据</s>」→ 什么都没剩。缺 Spec。</div>
+  <p class="note">同样的任务，目的不同，活就不同：如果目的是「决定要不要裁掉一个销售」，要算的东西完全不一样。AI 替你选不了目的，但能帮你把目的问出来——拿不准的时候，让它先问你几个问题再动手。</p>
+</div>
+</section>
+
+<!-- ============ VERIFIER ============ -->
+<section id="verifier">
+<div data-l="en">
+  <h2>Layer 2 · Verifier</h2>
+  <p class="def">After delivery, what will you compare the result against to know it's right? <b>Write that down before the work starts.</b></p>
+  <ul>
+    <li><strong>Checkable</strong>: an action you can take or a thing you can count. “Make it professional” isn't checkable. “At most five bullets per section” is.</li>
+    <li><strong>Outside signals first</strong>: the AI saying “deployed successfully” doesn't count. Opening the URL does.</li>
+    <li><strong>Up front</strong>: every criterion you invent after the draft arrives costs another round trip.</li>
+  </ul>
+  <p class="scene"><strong>Scenario.</strong> You ask the AI to write this week's project update for a client.</p>
+  <div class="pbox weak"><span class="lab">❌ Weak</span>Write a project update for the client, make it professional</div>
+  <div class="pbox strong"><span class="lab">✅ Strong</span>Write this week's project update for the client. <mark>Three sections: done this week, planned next week, decisions we need from the client.</mark> <mark>At most five bullets per section.</mark> <mark>Every decision item states a deadline and what happens if nobody decides.</mark> Check the draft against these three rules before you send it to me.</div>
+  <div class="scroll"><table>
+    <thead><tr><th>Fragment</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>make it professional</td><td>✗ An adjective. Nothing to compare against.</td></tr>
+      <tr><td>Three sections: …</td><td><strong>Structure criterion.</strong> Countable.</td></tr>
+      <tr><td>At most five bullets</td><td><strong>Quantity criterion.</strong> Countable.</td></tr>
+      <tr><td>A deadline and a consequence per item</td><td><strong>Content criterion.</strong> Tick it off item by item.</td></tr>
+      <tr><td>Check against these three rules</td><td>A self-check — <strong>useful only because the rules are checkable</strong>.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="test"><span class="lab">The one-line test</span><strong>Could someone else judge whether it's right, using only this sentence?</strong><br>“Professional” — no; everyone's version differs. “At most five bullets” — yes.</div>
+  <p class="note">“Check your own work” is not a Verifier on its own. Self-checking against “professional” checks nothing. It works only when the criteria are checkable — and for anything that matters, use a real signal: run it, open it, ask the person it's for.</p>
+</div>
+<div data-l="zh">
+  <h2>第 2 层 · Verifier</h2>
+  <p class="def">交付之后，你拿什么去比，才知道做对了。<b>这个标准要在开工前就写下来。</b></p>
+  <ul>
+    <li><strong>能检查</strong>：做完之后能去做的动作，或者能数的东西。「专业一点」不能检查，「每段不超过 5 条」能。</li>
+    <li><strong>外部信号优先</strong>：AI 说「部署成功」不算数，打开地址看一眼才算。</li>
+    <li><strong>提前写</strong>：交付后才想出来的标准，每一条都要多一个来回。</li>
+  </ul>
+  <p class="scene"><strong>情景。</strong>你让 AI 帮你写这周给客户的项目周报。</p>
+  <div class="pbox weak"><span class="lab">❌ 弱</span>帮我写一份项目周报，写得专业一点</div>
+  <div class="pbox strong"><span class="lab">✅ 强</span>帮我写这周给客户的项目周报。<mark>分三段：本周完成、下周计划、需要客户决定的事。</mark><mark>每段不超过 5 条。</mark><mark>「需要客户决定的事」每条写明截止日期，以及不决定的后果。</mark>写完对照这三条自己检查一遍再给我。</div>
+  <div class="scroll"><table>
+    <thead><tr><th>片段</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td>写得专业一点</td><td>✗ 形容词，做完没东西可比。</td></tr>
+      <tr><td>分三段：……</td><td><strong>结构标准。</strong>能数。</td></tr>
+      <tr><td>每段不超过 5 条</td><td><strong>数量标准。</strong>能数。</td></tr>
+      <tr><td>每条写明截止日期和后果</td><td><strong>内容标准。</strong>能逐条打勾。</td></tr>
+      <tr><td>对照这三条检查</td><td>自查——<strong>只因为标准能检查，它才有用</strong>。</td></tr>
+    </tbody>
+  </table></div>
+  <div class="test"><span class="lab">一句话检验</span><strong>只凭这句话，别人能不能替你判断做没做对？</strong><br>「专业一点」不能，每个人心里的专业不一样。「每段不超过 5 条」能。</div>
+  <p class="note">让 AI「自己检查一遍」本身不是 Verifier。对着「专业一点」自查，等于没查。自查只有在标准能检查时才有意义；重要的事，找真实信号：跑一下、打开看、问问用它的人。</p>
+</div>
+</section>
+
+<!-- ============ ENVIRONMENT ============ -->
+<section id="environment">
+<div data-l="en">
+  <h2>Layer 3 · Environment</h2>
+  <p class="def">Next time, what should hold without you saying it again? <b>Environment isn't content — it's location.</b> The same sentence typed in the chat box is a prompt. Written into CLAUDE.md, it's environment.</p>
+  <ul>
+    <li><strong>CLAUDE.md</strong>: rules loaded automatically every session. For “always do it this way.”</li>
+    <li><strong>Skill</strong>: a reusable procedure. For “this kind of task always goes like this.”</li>
+    <li><strong>Hook</strong>: a check that runs when the AI calls a tool, and can block the call. For “this must never happen.”</li>
+  </ul>
+  <p class="scene"><strong>Scenario.</strong> Every time you ask the AI to change code, you remind it of two things: run the tests afterwards, and don't touch the database migration files. This is the fourth time this week.</p>
+  <div class="pbox weak"><span class="lab">❌ Weak — the fourth time</span>Fix the error message on the login page. <mark>Usual rules:</mark> run the tests after, and don't touch the migration files.</div>
+  <div class="pbox strong"><span class="lab">✅ Strong</span>Move the rules into <code>CLAUDE.md</code> at the project root:
+<pre><code>## Rules
+- After changing code, run npm test and paste the result
+- Never modify anything under db/migrations/</code></pre>Now the prompt is just: <em>Fix the error message on the login page.</em></div>
+  <div class="scroll"><table>
+    <thead><tr><th>Fragment</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>Usual rules</td><td>✗ <strong>A repetition signal.</strong> This belongs somewhere else.</td></tr>
+      <tr><td>run the tests → CLAUDE.md</td><td>An “always do” — goes in the rules file.</td></tr>
+      <tr><td>don't touch migrations → CLAUDE.md, or a hook</td><td>A “never do” — a rule; if a slip would be costly, enforce it with a hook.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Sort rules by the cost of a mistake:</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Tier</th><th>Example</th><th>Where it lives</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Always do</td><td>Run the tests after a change</td><td>CLAUDE.md</td></tr>
+      <tr><td class="k">Ask first</td><td>Add a new dependency</td><td>CLAUDE.md, saying “ask me first”</td></tr>
+      <tr><td class="k">Never do</td><td>Edit migrations, delete production data</td><td>CLAUDE.md + a hook</td></tr>
+    </tbody>
+  </table></div>
+  <div class="test"><span class="lab">The one-line test</span><strong>Will this still be true next time? How many times have I said it?</strong></div>
+  <p class="note">Why a hook for “never”? A rule in CLAUDE.md is a <strong>request</strong>: the AI can miss or ignore it. A hook is a <strong>rule</strong>: it can block the tool call as it happens. But hooks only guard <strong>tool calls</strong> — editing files, running commands. They can't govern what the AI <em>says</em>, so a rule like “don't make things up” is out of a hook's reach. See <a href="https://code.claude.com/docs/en/memory">CLAUDE.md</a> and <a href="https://code.claude.com/docs/en/hooks-guide">hooks</a> in the Claude Code docs.</p>
+</div>
+<div data-l="zh">
+  <h2>第 3 层 · Environment</h2>
+  <p class="def">下一次，什么东西不用你再说一遍。<b>Environment 不是内容，是位置。</b>同一句话写在聊天框里是提示词，写进 CLAUDE.md 就是环境。</p>
+  <ul>
+    <li><strong>CLAUDE.md</strong>：每次会话自动加载的规则。适合「每次都该这样」的事。</li>
+    <li><strong>Skill</strong>：可复用的一整套流程。适合「这类任务每次都这么做」。</li>
+    <li><strong>Hook</strong>：AI 调用工具时自动运行的检查，可以直接拦下这次调用。适合「绝对不能发生」的事。</li>
+  </ul>
+  <p class="scene"><strong>情景。</strong>你每次让 AI 改代码，都要提醒两件事：改完跑测试；不要动数据库迁移文件。这周已经是第四次了。</p>
+  <div class="pbox weak"><span class="lab">❌ 弱（第四次）</span>改一下登录页的报错提示。<mark>老规矩：</mark>改完跑测试，别动数据库迁移文件。</div>
+  <div class="pbox strong"><span class="lab">✅ 强</span>把规则挪进项目根目录的 <code>CLAUDE.md</code>：
+<pre><code>## 规则
+- 改完代码必须运行 npm test，并贴出结果
+- 不要修改 db/migrations/ 下的任何文件</code></pre>然后提示词只剩：<em>改一下登录页的报错提示。</em></div>
+  <div class="scroll"><table>
+    <thead><tr><th>片段</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td>老规矩</td><td>✗ <strong>重复信号。</strong>这句话本该住在别处。</td></tr>
+      <tr><td>改完跑测试 → CLAUDE.md</td><td>「每次都该做」，写进规则文件。</td></tr>
+      <tr><td>别动迁移文件 → CLAUDE.md，或 hook</td><td>「绝对不能做」，写成规则；出错代价高，就用 hook 强制拦截。</td></tr>
+    </tbody>
+  </table></div>
+  <p>按做错的代价分三档：</p>
+  <div class="scroll"><table>
+    <thead><tr><th>档位</th><th>例子</th><th>放哪</th></tr></thead>
+    <tbody>
+      <tr><td class="k">总是做</td><td>改完跑测试</td><td>CLAUDE.md</td></tr>
+      <tr><td class="k">先问我</td><td>引入新的依赖包</td><td>CLAUDE.md，写明「先问我」</td></tr>
+      <tr><td class="k">绝不做</td><td>改迁移文件、删生产数据</td><td>CLAUDE.md + hook</td></tr>
+    </tbody>
+  </table></div>
+  <div class="test"><span class="lab">一句话检验</span><strong>这句话下次还成立吗？这是我第几次说了？</strong></div>
+  <p class="note">为什么「绝不做」要用 hook？写在 CLAUDE.md 里的规则是<strong>请求</strong>，AI 可能漏看或忽略；hook 是<strong>规则</strong>，能在工具调用发生的那一刻直接拦下。但 hook 只管得住<strong>工具调用</strong>（改文件、跑命令），管不住 AI <em>说</em>什么——「不要编造信息」这类规则，hook 帮不上。详见 Claude Code 文档里的 <a href="https://code.claude.com/docs/en/memory">CLAUDE.md</a> 和 <a href="https://code.claude.com/docs/en/hooks-guide">hooks</a>。</p>
+</div>
+</section>
+
+<!-- ============ APART ============ -->
+<section id="apart">
+<div data-l="en">
+  <h2>Telling them apart</h2>
+  <p>Spec and Verifier blur the most, because they often share a sentence. Separate them <strong>by time</strong>:</p>
+  <ul>
+    <li><strong>Spec</strong> is what's needed <strong>before</strong> the work — or nobody knows what to do.</li>
+    <li><strong>Verifier</strong> is what's needed <strong>after</strong> delivery — or nobody knows whether it's done.</li>
+  </ul>
+  <p>One sentence doing both is a good thing. “At most five bullets per section” sets a boundary (Spec) and gives you something to count (Verifier). <strong>Environment</strong> is about <strong>location</strong>: the question isn't “what does this say?” but “will it still be true next time?”</p>
+  <div class="card">
+    <p style="margin:0 0 .5rem"><strong>The procedure.</strong> Ask in order — <strong>the first hit is the answer.</strong></p>
+    <ol style="margin:0">
+      <li>Is this <strong>repeating</strong> something said before? → yes → <strong>Environment</strong></li>
+      <li><strong>Cross out the deliverable.</strong> Is a decision left? → no → <strong>Spec</strong></li>
+      <li>When it's done, <strong>what will it be compared against?</strong> → can't say → <strong>Verifier</strong></li>
+      <li>All three pass → <strong>all three present</strong></li>
+    </ol>
+  </div>
+  <p>Three more rules:</p>
+  <ul>
+    <li><strong>Acceptance turns</strong> (“ok”, “pass”, “looks good”) don't assign work. Skip question 2 and go straight to question 3.</li>
+    <li><strong>Not applicable isn't missing.</strong> For a one-off task, Environment simply doesn't apply. Not every prompt is broken — don't hunt for a flaw.</li>
+    <li><strong>A signal is a pause, not a verdict.</strong> When you catch “since X, then Y”, ask: <em>can I check this premise?</em> Checkable but unchecked is a defect. Uncheckable — it needs knowledge you don't have — carry on, but have the AI list the possibilities first, so the search has a stopping point.</li>
+  </ul>
+  <p class="note">And: <strong>longer isn't more complete.</strong> Trading adjectives for actions usually makes a prompt shorter.</p>
+</div>
+<div data-l="zh">
+  <h2>怎么区分</h2>
+  <p>最容易混的是 Spec 和 Verifier，因为它们常写在同一句话里。分开它们<strong>看时间</strong>：</p>
+  <ul>
+    <li><strong>Spec</strong> 是<strong>开工前</strong>就要知道的——不然不知道该做什么。</li>
+    <li><strong>Verifier</strong> 是<strong>交付后</strong>才用得上的——不然不知道做完了没有。</li>
+  </ul>
+  <p>一句话占两层是好事。「每段不超过 5 条」既划了边界（Spec），又能拿去数（Verifier）。<strong>Environment</strong> 看<strong>位置</strong>：问的不是「这句话说了什么」，而是「它下次还成立吗」。</p>
+  <div class="card">
+    <p style="margin:0 0 .5rem"><strong>判定顺序。</strong>按顺序问，<strong>第一个命中的就是答案。</strong></p>
+    <ol style="margin:0">
+      <li>这句话在<strong>重复</strong>之前说过的东西吗？→ 是 → <strong>Environment</strong></li>
+      <li>把<strong>交付物</strong>划掉，还剩一个决定吗？→ 没剩 → <strong>Spec</strong></li>
+      <li>做完之后，<strong>拿什么去比</strong>？→ 说不出来 → <strong>Verifier</strong></li>
+      <li>三问都过 → <strong>三层都在</strong></li>
+    </ol>
+  </div>
+  <p>再加三条：</p>
+  <ul>
+    <li><strong>验收时说的话</strong>（「好」「pass」「就这样吧」）不是在布置任务。跳过第 2 问，直接问第 3 问。</li>
+    <li><strong>不适用不等于缺失。</strong>一次性的小任务，Environment 本来就不适用。不是每条提示词都有毛病，别硬找。</li>
+    <li><strong>信号是停一秒的提醒，不是判决。</strong>看到自己写出「既然 X，那么 Y」，先问：<em>这个前提我验得了吗？</em>验得了却没验，是缺陷；验不了（需要你不具备的知识），照常往下走，但先让 AI 把所有可能性列出来，当作停止条件。</li>
+  </ul>
+  <p class="note">还有：<strong>长不等于完整。</strong>把形容词换成动作，提示词往往更短。</p>
+</div>
+</section>
+
+<!-- ============ PRACTICE ============ -->
+<section id="practice">
+<div data-l="en">
+  <h2>10 exercises</h2>
+  <p>Six ask which layer is missing; four ask which fix is best. They're deliberately mixed rather than grouped by layer — telling confusable categories apart is exactly what mixed practice trains. Feedback depends on the option you pick. Keep the procedure above open while you work: looking it up is the point at this stage.</p>
+</div>
+<div data-l="zh">
+  <h2>10 道练习</h2>
+  <p>六道问缺哪一层，四道问哪个改法最好。题目故意打乱、不按层分组——把容易混的类别分开，正是交错练习最擅长的事。反馈会根据你选的选项给出。做题时可以开着上面的判定顺序，这个阶段查表就是该做的事。</p>
+</div>
+<noscript><p class="note">The exercises need JavaScript. Everything above works without it. / 练习需要启用 JavaScript，上面的讲解不受影响。</p></noscript>
+<div id="scorebar"></div>
+<div id="quiz"></div>
+<div id="results" class="card"></div>
+</section>
+
+<!-- ============ SOURCES ============ -->
+<section id="sources">
+<div data-l="en">
+  <h2>Where this comes from</h2>
+  <p><strong>Read one thing:</strong> <a href="https://karpathy.bearblog.dev/sequoia-ascent-2026/">Andrej Karpathy's own summary of his Sequoia Ascent 2026 talk</a>. It ends with the line this whole guide rests on: <em>“You can outsource your thinking, but you can't outsource your understanding.”</em></p>
+  <p>The three-layer framing was popularized by a video that repackaged that talk. A few of the video's claims don't hold, and this guide doesn't use them:</p>
+  <ul>
+    <li><strong>“Validation is the only real lever.”</strong> All three layers are levers. Karpathy's actual line — <em>“Traditional software automates what you can specify. LLMs and reinforcement learning automate what you can verify”</em> — is about which tasks get automated, not advice on writing prompts.</li>
+    <li><strong>CLAUDE.md, skills and hooks</strong> don't appear in Karpathy's summary; that layer is the video's addition. It's sound practice, but its authority is the <a href="https://code.claude.com/docs/en/memory">Claude Code documentation</a>, not Karpathy.</li>
+    <li><strong>The “robot librarian” picture of AI</strong> misleads: models generalize rather than look things up, which is also why they produce believable wrong answers. What makes a Verifier worth having is whether an answer can be checked.</li>
+  </ul>
+  <p>Why <code>best-minds-drill</code> then practices on <em>your</em> transcripts instead of examples like these: knowing a rule and noticing when it applies are different abilities. Experts' knowledge comes with the conditions for using it attached — see Bransford, Brown &amp; Cocking, <a href="https://www.nationalacademies.org/read/9853/chapter/5"><em>How People Learn</em>, ch. 2</a>. This guide gives you the rules; the drill trains the noticing.</p>
+  <hr style="border:0;border-top:1px solid var(--rule);margin:2rem 0">
+  <p class="note"><strong>Stuck on something?</strong> Ask in Claude Code. It can explain any exercise here, or walk through why a prompt of yours is missing a layer.</p>
+</div>
+<div data-l="zh">
+  <h2>这些说法从哪来</h2>
+  <p><strong>只读一个就够：</strong><a href="https://karpathy.bearblog.dev/sequoia-ascent-2026/">Andrej Karpathy 本人对 Sequoia Ascent 2026 演讲的摘要</a>。它的最后一句，是这整份指南的立足点：<em>“You can outsource your thinking, but you can't outsource your understanding.”</em>（思考可以外包，理解不能。）</p>
+  <p>三层这个框架是由一段解读这场演讲的视频流行起来的。视频里有几处说法站不住，这份指南没有采用：</p>
+  <ul>
+    <li><strong>「验证是唯一真正的杠杆」。</strong>三层都是杠杆。Karpathy 的原话是 <em>“Traditional software automates what you can specify. LLMs and reinforcement learning automate what you can verify”</em>——讲的是哪些任务会被自动化，不是写提示词的建议。</li>
+    <li><strong>CLAUDE.md、skill、hook</strong> 在 Karpathy 的摘要里没有出现，第三层是视频加的。做法本身是对的，但它的权威是 <a href="https://code.claude.com/docs/en/memory">Claude Code 官方文档</a>，不是 Karpathy。</li>
+    <li><strong>把 AI 比作「机器人图书管理员」</strong>会误导：模型是泛化，不是查书，这也正是它能编出可信错答案的原因。决定要不要 Verifier 的，是答案能不能被检查。</li>
+  </ul>
+  <p>为什么 <code>best-minds-drill</code> 接下来要用<em>你自己的</em>对话记录练，而不是用这里的例子：知道一条规则，和在该用的时候想起来用，是两种能力。专家的知识自带「什么时候用」的条件——见 Bransford、Brown 与 Cocking 主编的 <a href="https://www.nationalacademies.org/read/9853/chapter/5"><em>How People Learn</em> 第 2 章</a>。这份指南给你规则，drill 训练的是想起来。</p>
+  <hr style="border:0;border-top:1px solid var(--rule);margin:2rem 0">
+  <p class="note"><strong>哪里没看懂？</strong>直接在 Claude Code 里问。它可以讲解这里的任何一道题，或者陪你拆开看你自己的某条提示词缺了哪一层。</p>
+</div>
+</section>
+
+</main>
+
+<script>
+/*ITEMS-START*/
+var ITEMS = [
+{ type:"c", tag:"spec",
+  ctx:{ en:"Your team wants to switch project-management tools, and you're leading the change.",
+        zh:"团队想换一个项目管理工具，由你牵头。" },
+  prompt:{ en:"Research the project management tools on the market for me",
+           zh:"帮我调研一下市面上的项目管理工具" },
+  answer:"spec",
+  fb:{
+    spec:{ en:"Cross out “project management tools” and nothing is left. What decision does the research feed? How many users, what budget, what's wrong with the current tool, how many options to compare? None of it is here. <b>Without the decision, there's no way to know what to compare.</b>",
+           zh:"划掉「项目管理工具」，什么都没剩。调研服务于哪个决定？几个人用、预算多少、现在的工具哪里不好用、比较几家？都没有。<b>不知道要决定什么，就不知道该比较什么。</b>" },
+    verifier:{ en:"True, there are no criteria either — but question 2 hits first. You can't define “right” before you know the decision it serves: no Spec, no Verifier.",
+               zh:"确实也没有验收标准，但按判定顺序，第 2 问先命中。连要决定什么都不知道，标准无从谈起：Spec 缺了，Verifier 也写不出来。" },
+    env:{ en:"Nothing in the scenario is being repeated; it's a one-off task. Environment doesn't apply here — and that isn't the same as missing.",
+          zh:"情景里没有「又说一遍」的迹象，这是一次性任务。Environment 在这里不适用，而不适用不等于缺失。" },
+    all:{ en:"Cross out the deliverable and nothing remains. This is the textbook missing Spec.",
+          zh:"划掉交付物之后什么都没剩，这是最典型的缺 Spec。" }
+  }
+},
+{ type:"c", tag:"env",
+  ctx:{ en:"You're asking the AI for a feature. You've given this same reminder in four different tasks this week.",
+        zh:"你让 AI 加功能。这周你已经在四个不同的任务里说过同样的提醒。" },
+  prompt:{ en:"Add a button that exports orders to CSV. Usual rules: run the tests after, and don't touch the migration files.",
+           zh:"加一个把订单导出成 CSV 的按钮。老规矩：改完跑测试，不要动数据库迁移文件。" },
+  answer:"env",
+  fb:{
+    env:{ en:"“Usual rules” is the signal. The content is fine; <b>the location is wrong</b>. “Run the tests” belongs in CLAUDE.md. “Don't touch migrations” is a never-do, and if a slip would be costly, a hook can enforce it. Move both and the prompt is just its first sentence.",
+          zh:"「老规矩」三个字就是信号。内容没错，<b>位置错了</b>。「改完跑测试」该写进 CLAUDE.md；「不要动迁移文件」是「绝不做」，出错代价高的话可以用 hook 强制拦截。两条挪走之后，这条提示词只剩前半句。" },
+    spec:{ en:"The Spec is fine — export orders to CSV, clearly bounded. And question 1 hits first: this is repeating something already said many times.",
+           zh:"Spec 其实够了：把订单导出成 CSV，范围清楚。而且判定顺序第 1 问就命中：这是在重复说过很多遍的话。" },
+    verifier:{ en:"“Run the tests” is itself a check, so Verifier isn't missing. The problem isn't whether it's there — it's that you type it every time.",
+               zh:"「跑测试」本身就是检查动作，Verifier 不缺。问题不在有没有，而在于它每次都要你手打。" },
+    all:{ en:"The content of all three is there, but part of it lives in the wrong place. “Usual rules” means it has been said many times: <b>something that belongs in CLAUDE.md is living in the chat box.</b>",
+          zh:"三层的内容确实都在，但有一部分放错了地方。「老规矩」说明它已经说过很多遍：<b>本该住在 CLAUDE.md 里的东西，住在了聊天框里。</b>" }
+  }
+},
+{ type:"r", tag:"spec",
+  ctx:{ en:"A customer's order shipped three days late and they're angry. Your original prompt:",
+        zh:"客户的订单晚发货三天，客户很生气。你的原始提示词是：" },
+  prompt:{ en:"Write an apology email, make the tone sincere", zh:"帮我写一封道歉邮件，语气诚恳一点" },
+  ask:{ en:"Which addition best fixes the layer this prompt needs most?", zh:"哪个补充最能补上这条提示词最缺的那一层？" },
+  answer:"b",
+  opts:[
+    { id:"a",
+      t:{ en:"Make it more sincere, more professional and more moving, so they calm right down.",
+          zh:"写得更诚恳、更专业、更打动人，让客户看完能消气，语气温和一点。" },
+      fb:{ en:"All adjectives — sincere, professional, moving, calm. Not one of them can be checked. This doubles down on the original problem.",
+           zh:"全是形容词：诚恳、专业、打动人、消气、温和，没有一个能拿去比对。这是在原来的毛病上加码。" } },
+    { id:"b",
+      t:{ en:"Goal: keep this customer. Explain the delay, offer a fix, stay under 150 words.",
+          zh:"目的是留住这个客户：说明晚发三天的原因和补偿方案，两百字以内。" },
+      fb:{ en:"Adds the <b>purpose</b> (keep the customer), the <b>facts</b> (the delay, a remedy) and a <b>boundary</b> (under 150 words). Now the AI knows what to write, what to leave out, and where to stop. “Under 150 words” is countable too — one line doing two layers is a good thing.",
+           zh:"补上了<b>目的</b>（留住客户）、<b>事实</b>（晚发三天、原因、补偿）和<b>边界</b>（两百字以内）。AI 现在知道该写什么、不该写什么、写到哪为止。「两百字以内」还能拿去数——一句话占两层是好事。" } },
+    { id:"c",
+      t:{ en:"Use this tone for every future customer email, and save that rule to CLAUDE.md.",
+          zh:"以后客户邮件都用这个语气，把这条规则写进 CLAUDE.md。" },
+      fb:{ en:"That's an Environment move, but this prompt isn't missing that layer: it's a one-off and nothing is repeating yet. And saving a vague “this tone” to CLAUDE.md just makes the vagueness permanent.",
+           zh:"这是 Environment 的动作，但这条提示词缺的不是这层：它是一次性的，还没有出现重复。而且把一个模糊的「这个语气」存进 CLAUDE.md，只会把模糊固定下来。" } },
+    { id:"d",
+      t:{ en:"When you're done, check it yourself and confirm that the tone is sincere enough.",
+          zh:"写完之后请你自己再检查一遍，确认语气足够诚恳，没问题再发我。" },
+      fb:{ en:"It looks like a Verifier, but it's empty. “Confirm the tone is sincere enough” — against what? The criterion is still an adjective. <b>Self-checking against an undefined standard checks nothing.</b> And this prompt's first gap is Spec anyway.",
+           zh:"看起来像 Verifier，其实是空的。「确认语气足够诚恳」——拿什么确认？标准还是那个形容词。<b>让 AI 对着一个没定义的标准自查，等于没查。</b>而且这条提示词先缺的是 Spec。" } }
+  ]
+},
+{ type:"c", tag:"all",
+  ctx:{ en:"You're about to add time-zone support, so you ask the AI for a refactor first.",
+        zh:"你准备给日期处理加时区支持，先让 AI 做一次重构。" },
+  prompt:{ en:"Move the date functions out of utils.js into their own file, so we can add time-zone support next week. All existing tests must still pass, every import path updated, no signature changes.",
+           zh:"把 utils.js 里的日期处理函数拆到单独的文件，方便下周加时区支持。现有测试必须全部照样通过，所有 import 路径同步更新，不改函数签名。" },
+  answer:"all",
+  fb:{
+    all:{ en:"This is the target shape. <b>Spec</b>: a purpose (time zones next week) and a boundary (date functions only, no signature changes). <b>Verifier</b>: tests pass and imports are updated — both checkable on delivery. <b>Environment</b>: a one-off, so it doesn't apply — <b>and not applicable isn't missing.</b>",
+          zh:"这就是目标形状。<b>Spec</b>：有目的（下周加时区），有边界（只动日期函数、不改签名）。<b>Verifier</b>：测试全部通过、import 全部更新，交付时都能验。<b>Environment</b>：一次性任务，不适用——<b>不适用不算缺失。</b>" },
+    spec:{ en:"Cross out “their own file” and you still have a purpose (“time-zone support next week”) and a boundary (“no signature changes”). The Spec is complete.",
+           zh:"划掉「单独的文件」，还剩「方便下周加时区支持」这个目的，和「不改函数签名」这条边界。Spec 是齐的。" },
+    verifier:{ en:"“All existing tests must still pass” and “every import path updated” can both be checked the moment it's delivered. The Verifier is complete.",
+               zh:"「现有测试必须全部照样通过」「所有 import 路径同步更新」，交付那一刻都能直接检查。Verifier 是齐的。" },
+    env:{ en:"Nothing here is being repeated. It's a one-off refactor, so Environment doesn't apply — <b>and that isn't the same as missing.</b> Don't hunt for a flaw that isn't there.",
+          zh:"这里没有重复信号。这是一次性的重构，Environment 不适用——<b>而不适用不等于缺失。</b>别为了找毛病而找毛病。" }
+  }
+},
+{ type:"c", tag:"verifier",
+  ctx:{ en:"Users keep writing in to complain that the homepage is slow.",
+        zh:"用户在反馈里一直抱怨网站首页打开慢。" },
+  prompt:{ en:"The homepage loads too slowly. Optimize it — the goal is that users stop complaining it's slow.",
+           zh:"首页加载太慢了，帮我优化一下，目标是让用户不再抱怨慢。" },
+  answer:"verifier",
+  fb:{
+    verifier:{ en:"“Users stop complaining” takes weeks to find out — <b>you can't judge it on delivery day</b>. It's a purpose, not a criterion. A Verifier is something you can compare on the day, like “the first screen loads in under 2 seconds on 4G, measured with Lighthouse.”",
+               zh:"「不再抱怨」要等几周后才知道，<b>交付那一刻没法判断</b>。它是目的，不是验收标准。Verifier 要的是交付当天就能比的东西，比如「4G 网络下首屏两秒内加载完，用 Lighthouse 测」。" },
+    spec:{ en:"The Spec actually passes: cross out “optimize” and a purpose remains (users stop complaining), scoped to the homepage.",
+           zh:"Spec 其实过了：划掉「优化」，还剩「让用户不再抱怨慢」这个目的，范围也限定在首页。" },
+    env:{ en:"Nothing repeats; it's a one-off task. Environment doesn't apply.",
+          zh:"没有重复信号，一次性任务，Environment 不适用。" },
+    all:{ en:"One layer short. “Stop complaining” sounds like a criterion but it's a <b>purpose</b>. <b>Purposes belong to Spec; a proxy you can check on the day belongs to Verifier.</b> This is the easiest pair to confuse.",
+          zh:"差一层。「不再抱怨慢」听上去像标准，其实是<b>目的</b>。<b>目的属于 Spec，交付当天就能检查的替代指标才属于 Verifier。</b>这是最容易混的一对。" }
+  }
+},
+{ type:"r", tag:"env",
+  ctx:{ en:"In every new session you re-explain your team's three code rules: TypeScript strict mode, functions under 50 lines, Conventional Commits for messages.",
+        zh:"你每开一个新会话，都要重新告诉 AI 团队的三条代码规范：TypeScript 严格模式、函数不超过 50 行、提交信息用 Conventional Commits。" },
+  prompt:null,
+  ask:{ en:"What's the best way to handle this?", zh:"怎么处理最好？" },
+  answer:"c",
+  opts:[
+    { id:"a",
+      t:{ en:"Paste all three rules at the start of every session, so they're always fresh.",
+          zh:"每次开会话都把三条完整贴一遍，确保 AI 每次都看到最新要求。" },
+      fb:{ en:"That <i>is</i> the problem. The content is right; <b>the location is wrong</b>. Pasting it every session means rebuilding the environment every session.",
+           zh:"这就是问题本身。内容没错，<b>位置错了</b>——每次贴一遍，就是每次重建一遍环境。" } },
+    { id:"b",
+      t:{ en:"State the rules in more detail and with more emphasis, so the AI remembers them.",
+          zh:"在第一条提示词里写得更详细、更强调，让 AI 牢牢记住这三条。" },
+      fb:{ en:"Emphasis doesn't survive a session. A new session can't see the old chat, so however hard you stress the rules, you'll be saying them again tomorrow.",
+           zh:"强调不会跨会话。新会话看不到上一次的聊天记录，写得再用力，下次还得重说。" } },
+    { id:"c",
+      t:{ en:"Put the three rules in the project's CLAUDE.md, which loads in every session.",
+          zh:"把三条写进 CLAUDE.md，每次会话自动加载，不必再说。" },
+      fb:{ en:"<b>Environment isn't content — it's location.</b> The same three rules, moved from the chat box into CLAUDE.md, go from “say it every time” to “never say it again.” For something like the commit format, if violations are costly, a hook can also enforce it at commit time: CLAUDE.md is a request, a hook is a rule.",
+           zh:"<b>Environment 不是内容，是位置。</b>同样三条，从聊天框挪进 CLAUDE.md，就从「每次要说」变成「不用再说」。像提交信息格式这种规则，如果违反代价高，还可以再用 hook 在提交时强制检查：CLAUDE.md 是请求，hook 是规则。" } },
+    { id:"d",
+      t:{ en:"After the AI writes code, have it check its own code against the team rules.",
+          zh:"每次 AI 写完代码之后，都让它自己检查一遍是否符合团队规范。" },
+      fb:{ en:"Checking is Verifier work; it doesn't stop the repetition. And if the AI hasn't been given the rules, what is it checking against?",
+           zh:"检查是 Verifier 的事，解决不了「每次都要说」。而且 AI 连规则都没看到，拿什么检查？" } }
+  ]
+},
+{ type:"c", tag:"verifier",
+  ctx:{ en:"You had the AI deploy a new service. It replies: “Deployed successfully ✅”",
+        zh:"你让 AI 部署了一个新服务，它回复：「部署成功 ✅」" },
+  prompt:{ en:"Great, that's it then", zh:"好的，那就这样吧" },
+  answer:"verifier",
+  fb:{
+    verifier:{ en:"“Deployed successfully” is the AI's own report. Real signals were right there — open the URL, hit the health check, look at the deploy dashboard — and none of them were checked. <b>An outside signal beats the AI's own account.</b> (Though a check only proves what it measures.)",
+               zh:"「部署成功」是 AI 自己说的。能查的真实信号就在那儿：打开服务地址、看健康检查、看部署平台的状态，却一个都没查。<b>外部信号比 AI 的自述可靠。</b>（当然，检查也只能证明它测量的那件事。）" },
+    spec:{ en:"This turn isn't assigning work — it's <b>accepting</b> it. For acceptance turns, skip question 2 and ask question 3: what was the result compared against? Nothing.",
+           zh:"这句话不是在布置任务，是在<b>验收</b>。验收时说的话，跳过第 2 问，直接问第 3 问：拿什么比了？什么都没比。" },
+    env:{ en:"Nothing repeats here. If every deploy ought to be checked, “after deploying, open the URL and paste the result” could go into CLAUDE.md — but that's a next step, not this turn's gap.",
+          zh:"这里没有重复信号。如果每次部署都该验，可以把「部署后打开地址并贴出结果」写进 CLAUDE.md——但那是下一步，不是这一句缺的。" },
+    all:{ en:"The entire acceptance is “that's it then” — <b>the judgment was handed to the AI.</b>",
+          zh:"验收只有一句「那就这样吧」，等于<b>把判断交给了 AI。</b>" }
+  }
+},
+{ type:"r", tag:"verifier",
+  ctx:{ en:"Images on your site are too heavy and slow the pages down. Original prompt:",
+        zh:"网站上的图片太大，拖慢了页面。原始提示词：" },
+  prompt:{ en:"Write a script to compress the images in photos/ for use on the website. Don't touch the originals.",
+           zh:"写个脚本，把 photos/ 里的图片压缩一下，要放到网站上用，原图别动。" },
+  ask:{ en:"This prompt already has a purpose and a boundary. Which addition best fixes the layer it still lacks?",
+        zh:"这条提示词已经有目的和边界了。哪个补充最能补上它还缺的那一层？" },
+  answer:"b",
+  opts:[
+    { id:"a",
+      t:{ en:"Make them as small as possible, but keep the quality good and nothing blurry.",
+          zh:"图片压得越小越好，但是画质也不能太差，看起来要清楚，千万别糊掉。" },
+      fb:{ en:"“As small as possible” and “quality good” pull against each other, and neither has a number. You'd still have to eyeball every image yourself.",
+           zh:"「越小越好」和「不能太差」互相拉扯，又都没有数。做完你还是得一张张自己看图判断。" } },
+    { id:"b",
+      t:{ en:"Each file under 300 KB, long edge at most 2000 px; print before/after sizes.",
+          zh:"每张不超过 300KB，长边不超过 2000 像素，列出前后大小。" },
+      fb:{ en:"Two numbers (300 KB, 2000 px) you can check directly, and “print before/after sizes” makes the result carry its own evidence, instead of the script just saying “done.”",
+           zh:"两个数字（300KB、2000 像素）做完能直接比；「列出前后大小」让结果自带证据，不用听脚本说一句「压缩完成」。" } },
+    { id:"c",
+      t:{ en:"Save this compression request in CLAUDE.md, so future image work follows it.",
+          zh:"把这个压缩需求写进 CLAUDE.md，以后处理图片全都按这个来。" },
+      fb:{ en:"Nothing is repeating, so Environment isn't the gap. And there's no standard yet — you'd be saving something vague.",
+           zh:"原提示词没有出现重复，Environment 不是这次缺的。而且标准都还没定，现在存进去的也只是模糊的东西。" } },
+    { id:"d",
+      t:{ en:"First tell me which compression method you'll use, and wait for my approval.",
+          zh:"先告诉我你打算用哪种压缩算法和参数，等我确认之后你再开始动手写。" },
+      fb:{ en:"That's a <b>checkpoint</b>, not a criterion. Approving the method still doesn't tell you what “compressed enough” means. And checkpoints cost a round trip, so size them to the cost of a mistake — with the originals untouched and the script easy to rerun, this isn't worth stopping for.",
+           zh:"这是一个<b>检查点</b>，不是验收标准。确认了算法，还是不知道压到什么程度算做对。而且检查点有成本，要配合做错的代价——原图不动、随时能重跑，这种事不值得停下来等你确认。" } }
+  ]
+},
+{ type:"c", tag:"spec",
+  ctx:{ en:"You're planning the next set of features for your product.",
+        zh:"你在规划自己产品的下一批功能。" },
+  prompt:{ en:"Since competitor A has the most users, it must have the most complete feature set. Use A as the benchmark and list the features we're missing.",
+           zh:"既然竞品 A 的用户最多，那它的功能肯定最全。帮我以 A 为标杆，列一份我们还缺的功能清单。" },
+  answer:"spec",
+  fb:{
+    spec:{ en:"“Since X, then Y” — so ask: can I check this premise? <b>Yes</b>: a look at each competitor's feature page would do it. And it's probably false: user count can come from price, distribution, or being first. The whole list rests on a premise that was checkable and wasn't checked. Cross out “feature list” too — what decision is the list for? It doesn't say.",
+           zh:"「既然 X，那么 Y」，先问：这个前提我验得了吗？<b>验得了</b>，看一眼几家的功能页就知道。而且大概率不成立：用户多可能靠价格、渠道或先发优势。整份清单建在一个验得了却没验的前提上。再划掉「功能清单」：列出来之后要决定什么？也没说。" },
+    verifier:{ en:"There are no criteria either — but question 2 hits first. If the premise is wrong, perfect criteria just verify a list that points the wrong way.",
+               zh:"确实也没有验收标准，但按判定顺序第 2 问先命中。前提错了，标准写得再好，也只是在验一份方向错误的清单。" },
+    env:{ en:"Nothing repeats; it's a one-off task. Environment doesn't apply.",
+          zh:"没有重复信号，一次性任务，Environment 不适用。" },
+    all:{ en:"There's a deliverable and a direction, but the direction rests on an unchecked premise. Note that “since” isn't wrong by itself — when a premise can't be checked, carrying on is fine. <b>The problem here is that it could have been checked, and wasn't.</b>",
+          zh:"有交付物，也有方向，但方向建在一个没验的前提上。注意：「既然」本身不是错——前提验不了时，照常往下走没问题。<b>这里的问题是它验得了却没验。</b>" }
+  }
+},
+{ type:"r", tag:"all",
+  ctx:{ en:"You're presenting the quarterly review next Monday and want the AI to draft the slides.",
+        zh:"下周一你要做季度汇报，想让 AI 帮你准备幻灯片。" },
+  prompt:null,
+  ask:{ en:"Which of these four prompts is the most complete across the three layers?",
+        zh:"下面四条提示词，哪条三层最完整？" },
+  answer:"b",
+  opts:[
+    { id:"a",
+      t:{ en:"Make quarterly review slides that look polished, read clearly, stay well-structured and feel data-rich, so leadership walks away convinced that it was a genuinely strong quarter.",
+          zh:"做一份季度汇报幻灯片，要专业美观、逻辑清晰、重点突出、数据丰富、有说服力，让领导看完觉得我们这个季度做得非常好。" },
+      fb:{ en:"As long as the others, and it has no layer at all. Polished, clear, well-structured, data-rich — all adjectives. <b>Longer isn't more complete.</b>",
+           zh:"和其他几条一样长，但一层都没有。专业美观、逻辑清晰、重点突出、数据丰富——全是形容词。<b>长不等于完整。</b>" } },
+    { id:"b",
+      t:{ en:"Draft quarterly review slides; the goal is approval for two more hires. Ten slides max, one conclusion per slide, a final slide listing decisions needed, each with a deadline.",
+          zh:"做季度汇报幻灯片，目的是争取下季度多招两个人。十页以内，每页一个结论，最后一页列出要领导拍板的事，每条带截止日期。" },
+      fb:{ en:"The <b>purpose</b> (two more hires) decides what data belongs on each slide. <b>Ten slides, one conclusion each, decisions with deadlines</b> — all countable on delivery. Environment doesn't apply: it's a one-off.",
+           zh:"<b>目的</b>（争取多招两个人）决定了每页该放什么数据；<b>十页、每页一个结论、拍板事项带截止日期</b>，交付时都能数、能打勾。Environment 不适用：一次性任务。" } },
+    { id:"c",
+      t:{ en:"Draft quarterly review slides. From now on, every deck uses the company template, 24 pt text or larger, and under fifty words per slide; save all of these rules to CLAUDE.md.",
+          zh:"做季度汇报幻灯片。以后汇报都用公司模板，正文字号不小于 24，每页不超过五十字，这些规则写进 CLAUDE.md。" },
+      fb:{ en:"The Environment part is right — the template and font size will hold next time and belong in CLAUDE.md. But what is this presentation for? <b>Not a word.</b>",
+           zh:"Environment 做对了：模板、字号这些下次还成立，该进 CLAUDE.md。但这次汇报要达成什么？<b>一个字没说。</b>" } },
+    { id:"d",
+      t:{ en:"Draft quarterly review slides. Ten slides max, one conclusion per slide, a final slide listing decisions needed, each with a deadline. Check everything before you send it to me.",
+          zh:"做季度汇报幻灯片，十页以内，每页一个结论，最后一页列出要领导拍板的事，每条带截止日期，做完你再自己核对一遍。" },
+      fb:{ en:"<b>One sentence short</b> of the complete version: “the goal is approval for two more hires.” Without it, what should each slide's one conclusion be? The criteria are all there, serving nothing in particular. <b>A Verifier without a Spec precisely checks something aimed nowhere.</b>",
+           zh:"和最完整的那条<b>只差一句</b>：「目的是争取下季度多招两个人」。少了它，「每页一个结论」该是什么结论？标准都在，却不知道在为什么服务。<b>没有 Spec 的 Verifier，是在精确地检查一个没有方向的东西。</b>" } }
+  ]
+}
+];
+/*ITEMS-END*/
+
+var UI = {
+  en:{ n:"Exercise", cAsk:"Which layer is missing?", right:"Correct", wrong:"Not quite", correctIs:"The answer",
+       progress:"Progress", score:"Correct", results:"Your score", retake:"Retake", byLayer:"By layer",
+       labels:{ spec:"Spec", verifier:"Verifier", env:"Environment", all:"All three present" },
+       tags:{ spec:"Spec", verifier:"Verifier", env:"Environment", all:"Telling them apart" },
+       toggle:"中文" },
+  zh:{ n:"第", cAsk:"缺哪一层？", right:"对了", wrong:"不是这个", correctIs:"正确答案",
+       progress:"进度", score:"答对", results:"成绩", retake:"重做一遍", byLayer:"各层",
+       labels:{ spec:"Spec", verifier:"Verifier", env:"Environment", all:"三层都在" },
+       tags:{ spec:"Spec", verifier:"Verifier", env:"Environment", all:"怎么区分" },
+       toggle:"English" }
+};
+var ANCHOR = { spec:"#spec", verifier:"#verifier", env:"#environment", all:"#apart" };
+var CLASSIFY = ["spec","verifier","env","all"];
+
+function lang(){ return document.documentElement.getAttribute("data-lang") === "zh" ? "zh" : "en"; }
+function shuffle(a){ a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+var answers, order;
+function reset(){
+  answers = new Array(ITEMS.length);
+  order = ITEMS.map(function(it){ return it.type === "r" ? shuffle(it.opts.map(function(o){ return o.id; })) : CLASSIFY.slice(); });
+}
+
+function optById(it, id){ for (var k = 0; k < it.opts.length; k++) if (it.opts[k].id === id) return it.opts[k]; return null; }
+function label(it, id, L){ return it.type === "c" ? UI[L].labels[id] : optById(it, id).t[L]; }
+function feedback(it, id, L){ return it.type === "c" ? it.fb[id][L] : optById(it, id).fb[L]; }
+
+function renderItem(i){
+  var it = ITEMS[i], L = lang(), u = UI[L], chosen = answers[i];
+  var el = document.getElementById("q" + i);
+  var num = L === "zh" ? (u.n + " " + (i + 1) + " 题") : (u.n + " " + (i + 1));
+  var h = '<div class="qn">' + num + '</div>';
+  h += '<p class="ctx">' + it.ctx[L] + '</p>';
+  if (it.prompt) h += '<div class="qp">' + it.prompt[L] + '</div>';
+  h += '<p class="ask">' + (it.type === "c" ? u.cAsk : it.ask[L]) + '</p>';
+  h += '<div class="opts' + (it.type === "r" ? " col" : "") + '">';
+  order[i].forEach(function(id){
+    var cls = "";
+    if (chosen !== undefined) { if (id === it.answer) cls = "right"; else if (id === chosen) cls = "wrong"; }
+    h += '<button type="button" data-i="' + i + '" data-id="' + id + '" class="' + cls + '"' + (chosen !== undefined ? " disabled" : "") + '>' + label(it, id, L) + '</button>';
+  });
+  h += '</div>';
+  if (chosen !== undefined) {
+    var ok = chosen === it.answer;
+    h += '<div class="fb"><div class="verdict ' + (ok ? "y" : "n") + '">' + (ok ? u.right : u.wrong) + '</div><div>' + feedback(it, chosen, L) + '</div>';
+    if (!ok) h += '<div class="correct"><div class="verdict">' + u.correctIs + (it.type === "c" ? (L === "zh" ? "：" : ": ") + u.labels[it.answer] : "") + '</div><div>' + feedback(it, it.answer, L) + '</div></div>';
+    h += '</div>';
+  }
+  el.innerHTML = h;
+}
+
+function renderScore(){
+  var L = lang(), u = UI[L], done = 0, right = 0;
+  ITEMS.forEach(function(it, i){ if (answers[i] !== undefined) { done++; if (answers[i] === it.answer) right++; } });
+  document.getElementById("scorebar").innerHTML = u.progress + " <b>" + done + "</b>/" + ITEMS.length + " · " + u.score + " <b>" + right + "</b>";
+  return { done:done, right:right };
+}
+
+function recommend(n, weak, L){
+  var links = weak.map(function(t){ return '<a href="' + ANCHOR[t] + '">' + UI[L].tags[t] + '</a>'; }).join(L === "zh" ? "、" : ", ");
+  if (L === "zh") {
+    if (n === 10) return "<b>10/10。</b>三层你分得清了。可以开始用 <code>/best-minds-drill</code>——它会在你自己的对话记录里找真实的习惯，那才是真正的练习。";
+    if (n >= 8)  return "<b>" + n + "/10。</b>基本掌握了。错的题在 " + links + "，回去重读那一节，然后开始用 <code>/best-minds-drill</code>。";
+    if (n >= 5)  return "<b>" + n + "/10。</b>定义有了，边界还不稳。错得最多的是 " + links + "。再读一遍<a href=\"#apart\">判定顺序</a>，然后点下面的「重做一遍」。";
+    return "<b>" + n + "/10。</b>先别用 <code>/best-minds-drill</code>——它假设你懂这三层，现在用，它出的题你只能看答案才能做。从<a href=\"#layers\">总览</a>开始重读，重点看每个情景下的「结构拆解」表格，然后重做。";
+  }
+  if (n === 10) return "<b>10/10.</b> You can tell the layers apart. Start using <code>/best-minds-drill</code> — it finds the real habits in your own transcripts, which is where the actual practice happens.";
+  if (n >= 8)  return "<b>" + n + "/10.</b> Solid. Your misses were in " + links + ". Reread that section, then start using <code>/best-minds-drill</code>.";
+  if (n >= 5)  return "<b>" + n + "/10.</b> You have the definitions, but the boundaries aren't steady yet. Most misses: " + links + ". Then reread <a href=\"#apart\">the procedure</a> and hit Retake.";
+  return "<b>" + n + "/10.</b> Hold off on <code>/best-minds-drill</code> — it assumes you know these layers, and right now you'd only be able to do its exercises from the answers. Reread from the <a href=\"#layers\">overview</a>, focusing on each scenario's breakdown table, then retake.";
+}
+
+function renderResults(){
+  var s = renderScore(), box = document.getElementById("results");
+  if (s.done < ITEMS.length) { box.className = "card"; box.innerHTML = ""; return; }
+  var L = lang(), u = UI[L], per = {};
+  ITEMS.forEach(function(it, i){
+    per[it.tag] = per[it.tag] || [0, 0];
+    per[it.tag][1]++; if (answers[i] === it.answer) per[it.tag][0]++;
+  });
+  var tagsInOrder = ["spec","verifier","env","all"];
+  var maxMiss = 0; tagsInOrder.forEach(function(t){ var m = per[t][1] - per[t][0]; if (m > maxMiss) maxMiss = m; });
+  var weak = s.right >= 8
+    ? tagsInOrder.filter(function(t){ return per[t][0] < per[t][1]; })
+    : tagsInOrder.filter(function(t){ return (per[t][1] - per[t][0]) === maxMiss && maxMiss > 0; });
+  var h = '<h3 style="margin-top:0">' + u.results + '</h3><div class="bars">';
+  tagsInOrder.forEach(function(t){
+    var pct = Math.round(100 * per[t][0] / per[t][1]);
+    h += '<div class="bar"><span>' + u.tags[t] + '</span><span class="track"><span class="fill' + (pct < 67 ? " low" : "") + '" style="width:' + pct + '%;display:block"></span></span><span>' + per[t][0] + "/" + per[t][1] + '</span></div>';
+  });
+  h += '</div><p>' + recommend(s.right, weak, L) + '</p><button id="retake" type="button">' + u.retake + '</button>';
+  box.className = "card show"; box.innerHTML = h;
+  document.getElementById("retake").onclick = function(){ reset(); renderAll(); document.getElementById("practice").scrollIntoView({ behavior:"smooth" }); };
+}
+
+function renderAll(){
+  var q = document.getElementById("quiz");
+  if (!q.children.length) ITEMS.forEach(function(_, i){ var d = document.createElement("div"); d.className = "quiz"; d.id = "q" + i; q.appendChild(d); });
+  ITEMS.forEach(function(_, i){ renderItem(i); });
+  renderResults();
+  document.getElementById("langbtn").textContent = UI[lang()].toggle;
+}
+
+document.getElementById("quiz").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-id]"); if (!b) return;
+  var i = +b.getAttribute("data-i"); if (answers[i] !== undefined) return;
+  answers[i] = b.getAttribute("data-id");
+  renderItem(i); renderResults();
+  if (renderScore().done === ITEMS.length) document.getElementById("results").scrollIntoView({ behavior:"smooth", block:"center" });
+});
+
+document.getElementById("langbtn").addEventListener("click", function(){
+  var next = lang() === "zh" ? "en" : "zh";
+  document.documentElement.setAttribute("data-lang", next);
+  document.documentElement.lang = next === "zh" ? "zh-CN" : "en";
+  try { localStorage.setItem("bmd-lang", next); } catch (e) {}
+  renderAll();
+});
+
+reset(); renderAll();
+</script>
+</body>
+</html>
