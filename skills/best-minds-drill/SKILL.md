@@ -27,6 +27,13 @@ A **correction pair** is the core evidence unit: an original prompt plus the tur
 
 ## Steps
 
+0. **Check for a first run.** If `~/.claude/best-minds-drill/` exists, go to step 1. If it doesn't, this user has never run the skill, and every step below assumes they already know the three layers — without them, the drills can only be answered from the answer key. So before step 1:
+   - point them to the README in their language, [English](https://github.com/MoGHenry/superminds/blob/main/readme/README-best-minds-drill.md) or [中文](https://github.com/MoGHenry/superminds/blob/main/readme/README-best-minds-drill-CN.md), and then to the starter guide at `<skill dir>/assets/onboarding.html`, given as an absolute path they can open;
+   - create `~/.claude/best-minds-drill/`, so the reminder shows only once;
+   - ask whether they want to read first or start now, then stop and wait.
+
+   **Done when** the user has answered. If they start now, carry their argument into step 1.
+
 1. **Pick the transcripts.** Take the repo from the argument, or ask which repo to analyse. Then run:
    ```
    bash <skill dir>/scripts/find-sessions.sh <repo name or absolute path>

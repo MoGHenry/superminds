@@ -36,7 +36,7 @@ Every skill follows the same pattern:
 - `SKILL.md` — YAML frontmatter (`name`, `description`) + full instructions. The `description` field controls when the skill auto-triggers.
 - `references/` — Detailed instruction files loaded on demand (progressive disclosure pattern). The skill's SKILL.md tells the agent when to read each reference file.
 - `scripts/` — Shell scripts the skill runs (`best-minds-setup`, `best-minds-drill`). Always invoke them as `bash <path>`; the executable bit does not survive every install path.
-- `assets/` — Files for people, not the agent: shipped with the skill, opened by the user, never loaded into the agent's context. Example: `best-minds-drill/assets/onboarding.html`, a starter guide to the three layers. Anything the agent reads on demand belongs in `references/`.
+- `assets/` — Files for people, not the agent: shipped with the skill, opened by the user, never loaded into the agent's context. Example: `best-minds-drill/assets/onboarding.html`, the starter guide that `SKILL.md` step 0 points first-time users to. Anything the agent reads on demand belongs in `references/`.
 - Command-style skills (`best-minds-setup`, `best-minds-drill`) set `disable-model-invocation: true`, so they run only when the user types the slash command.
 
 ## Working on Skills
