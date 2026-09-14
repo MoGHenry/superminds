@@ -48,6 +48,16 @@ npx skills add https://github.com/MoGHenry/superminds --skill best-minds-triage
 
 Claude Code only, since it relies on `context: fork`. Without it, `best-minds-optimizer` triages itself on the session model — which works fine and keeps the skill portable to Cursor and Codex.
 
+#### Learn your prompt-writing habits
+
+`best-minds-drill` analyzes your Claude Code transcripts to diagnose prompt-writing patterns against three layers (Spec, Verifier, Environment), then generates personalized lessons and grades prompts you write in return. Tracks recurring problems to help you improve:
+
+```bash
+npx skills add https://github.com/MoGHenry/superminds --skill best-minds-drill
+```
+
+Then run `/best-minds-drill` to start. First-time users should read the [onboarding guide](https://github.com/MoGHenry/superminds/blob/main/skills/best-minds-drill/assets/onboarding.html).
+
 Or install manually by copying the skill directories into your agent's skills folder:
 
 [Github/superminds](https://github.com/MoGHenry/superminds)
@@ -69,6 +79,7 @@ Start a new session and ask a substantive question (e.g., "How should I price my
 **Thinking Enhancement**
 - **[best-minds-optimizer](readme/README-best-minds-optimizer.md)** — Prompt optimizer that identifies the world's top domain expert for your question, rewrites your prompt through their frameworks using a structured 4-D Methodology (Deconstruct → Diagnose → Develop → Deliver), and delivers a plain-English answer with a concrete next step. Handles four lanes: Skip, Polish, Clarify, and Optimize.
 - **[4d-mind-analyst](readme/README-4d-mind-analyst.md)** — Multi-perspective analysis engine that dispatches four parallel agents — User-Centric, Product, Topic Selection, and Curriculum thinking — then synthesizes their independent analyses into a unified tiered output.
+- **[best-minds-drill](readme/README-best-minds-drill.md)** — Prompt-writing diagnostic and drill tool. Analyzes your Claude Code transcripts to identify patterns in your prompting habits against three layers (Spec/Verifier/Environment), generates personalized lessons, grades new prompts you write, and tracks recurring problems over time to help you improve your thinking on the fly.
 
 **Agent Workflow**
 - **[feature-list-mind](readme/README-feature-list-mind.md)** — Human-AI collaborative session continuity protocol for long-running agent work. **This is not a fully automated pipeline** — it requires human oversight at every verification gate. The LLM implements and verifies, but only the human user holds the authority to mark features as complete. Manages a JSON feature list, session init sequence, incremental commit discipline, project test suite verification, and user notification gates. Based on Anthropic's [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
