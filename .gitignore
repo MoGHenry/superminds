@@ -40,3 +40,6 @@ skills-lock.json
 
 # Verbatim transcript of a third-party video — kept locally, never committed
 docs/three_layer.txt
+
+# best-minds-drill lessons quote your own transcripts verbatim — kept locally, never committed
+docs/learning/
