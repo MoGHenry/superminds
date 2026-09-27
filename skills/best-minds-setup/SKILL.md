@@ -60,7 +60,7 @@ Short instructions like "commit this" or "fix the header bug" print nothing, so 
   ```
   npx skills add https://github.com/MoGHenry/superminds --skill best-minds-triage
   ```
-  When it's installed, the gate's directive sends the prompt to `best-minds-triage` first, which returns a lane from a small-model fork. When it isn't, the directive falls back to `best-minds-optimizer` triaging itself.
+  When it's installed, the gate's directive sends the prompt to `best-minds-triage` first, which returns a lane from a small-model fork. When it isn't, or when it returns anything other than a `lane:` and `reason:` verdict, the directive falls back to `best-minds-optimizer` triaging itself.
 
 ## Troubleshooting
 

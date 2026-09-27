@@ -14,7 +14,7 @@
 
 set -euo pipefail
 
-DIRECTIVE='Before responding, invoke the best-minds-triage skill (via the Skill tool) on this prompt. It runs on a small model in an isolated subagent and returns one lane: skip, polish, clarify, or optimize. If the lane is skip, answer the original prompt directly. Otherwise invoke best-minds-optimizer and pass it that lane, so the optimization and the answer run on the session model. If best-minds-triage is not installed, invoke best-minds-optimizer directly; it triages itself.'
+DIRECTIVE='Before responding, invoke the best-minds-triage skill (via the Skill tool) on this prompt. It runs on a small model in an isolated subagent and returns one lane: skip, polish, clarify, or optimize. If the lane is skip, answer the original prompt directly. Otherwise invoke best-minds-optimizer and pass it that lane, so the optimization and the answer run on the session model. If best-minds-triage is not installed, or returns anything other than a lane: line and a reason: line, invoke best-minds-optimizer directly; it triages itself.'
 
 input="$(cat || true)"
 prompt="$(printf '%s' "$input" | jq -r '.prompt // empty' 2>/dev/null || true)"
