@@ -40,7 +40,7 @@ The trigger only speaks up for substantive prompts: 50+ characters, 10+ words, a
 
 #### Optional: keep the first pass cheap
 
-`best-minds-triage` decides whether a prompt is worth optimizing at all. It runs in an isolated subagent on a small model and returns a single lane, so your session model only pays for the prompts that actually get optimized:
+`best-minds-triage` decides whether a prompt is worth optimizing at all. It runs in an isolated subagent on a small model with every tool disabled, and returns a single lane, so your session model only pays for the prompts that actually get optimized:
 
 ```bash
 npx skills add https://github.com/MoGHenry/superminds --skill best-minds-triage

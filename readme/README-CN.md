@@ -40,7 +40,7 @@ npx skills add https://github.com/MoGHenry/superminds --skill best-minds-setup
 
 #### 可选：让第一步判断更便宜
 
-`best-minds-triage` 负责判断一个提示词是否值得优化。它在隔离的子智能体中以小模型运行，只返回一个通道（lane），因此会话模型只为真正需要优化的提示词付费：
+`best-minds-triage` 负责判断一个提示词是否值得优化。它在隔离的子智能体中以小模型运行，所有工具都被禁用，只返回一个通道（lane），因此会话模型只为真正需要优化的提示词付费：
 
 ```bash
 npx skills add https://github.com/MoGHenry/superminds --skill best-minds-triage
